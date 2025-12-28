@@ -429,30 +429,18 @@ function showToast() {
 }
     
 async function loadEpisodes(pid) {
+    // On décode l'ID au cas où il contiendrait des codes comme %20 ou %27
     const cleanId = decodeURIComponent(pid);
+    
     const listDiv = document.getElementById('episodes_list');
     listDiv.innerHTML = '<div class="loader">Plongée...</div>';
     
-    // On récupère les épisodes
-    let rawEpisodes = await callApi(`action=getEpisodes&playlistId=${encodeURIComponent(cleanId)}`);
+    episodes = await callApi(`action=getEpisodes&playlistId=${encodeURIComponent(cleanId)}`);
     
-    // SÉCURITÉ : On s'assure que les épisodes sont bien là et triés
-    if (!rawEpisodes || rawEpisodes.length === 0) {
+    if (!episodes || episodes.length === 0) {
         listDiv.innerHTML = '<p>Aucun épisode trouvé.</p>';
         return;
     }
-
-    // On stocke les épisodes dans la variable globale
-    episodes = rawEpisodes; 
-
-    listDiv.innerHTML = `<h3>Épisodes</h3>` + episodes.map((e, i) => `
-        <div class="episode-item list-item-ep" id="ep-${i}" onclick="play(${i})">
-            <span class="play-arrow">▶</span>
-            <span class="episode-title">${e.title}</span>
-        </div>`).join('');
-    
-    play(0); // Lance le premier de la liste
-}
 
     listDiv.innerHTML = `<h3>Épisodes</h3>` + episodes.map((e, i) => `
         <div class="episode-item list-item-ep" id="ep-${i}" onclick="play(${i})">
@@ -461,38 +449,33 @@ async function loadEpisodes(pid) {
     play(0);
 }
 
-let nextUrlCache = null; // Variable pour stocker l'URL du prochain
-
 async function play(i) {
     current = i;
-    nextUrlCache = null; // On vide le cache du suivant
     const audio = document.getElementById('player');
     const titleDisplay = document.getElementById('now-playing-title');
     
+    // 1. Visuel : on marque l'épisode comme sélectionné dans la liste
     document.querySelectorAll('.list-item-ep').forEach(el => el.classList.remove('current'));
     document.getElementById(`ep-${i}`)?.classList.add('current');
     
-    titleDisplay.innerText = "⌛ Connexion... " + episodes[i].title;
+    // 2. On affiche "Plongée en cours..." pendant l'attente
+    titleDisplay.innerText = "Plongée en cours : " + episodes[i].title;
 
-    try {
-        const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
+    // 3. Récupération de l'URL audio via ton API Google
+    const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
+    
+    if (audioUrl) {
+        audio.src = audioUrl;
         
-        if (audioUrl) {
-            audio.src = audioUrl;
+        // 4. L'ACTION IMPORTANTE : On attend que le lecteur soit prêt
+        audio.oncanplay = () => {
+            // Une fois que l'audio peut jouer, on affiche le titre définitif
             titleDisplay.innerText = episodes[i].title;
-            await audio.play();
+            audio.play();
             updateMediaSession(episodes[i].title);
-
-            // --- LA RUSE : On pré-charge l'URL du SUIVANT (i+1) tout de suite ---
-            if (i + 1 < episodes.length) {
-                callApi(`action=getAudio&guid=${episodes[i+1].guid}`).then(url => {
-                    nextUrlCache = url;
-                    console.log("Prochain épisode prêt en coulisses");
-                });
-            }
-        }
-    } catch (err) {
-        titleDisplay.innerText = "⚠️ Erreur de lecture";
+        };
+    } else {
+        titleDisplay.innerText = "Erreur de chargement";
     }
 }
 
@@ -521,30 +504,13 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.log("Erreur SW", err));
 }
 
+// Optionnel : Forcer le réveil du processeur pour l'audio suivant
 const audio = document.getElementById('player');
-
-audio.addEventListener('ended', async () => {
-    if (current + 1 < episodes.length) {
-        const nextIndex = current + 1;
-        
-        // On affiche un message spécial
-        document.getElementById('now-playing-title').innerText = "Transition vers l'épisode suivant...";
-        
-        // On lance immédiatement la fonction play pour le suivant
-        await play(nextIndex);
-    }
+audio.addEventListener('play', () => {
+  if ('wakeLock' in navigator) {
+    navigator.wakeLock.request('screen').catch(() => {});
+  }
 });
-
-// ASTUCE MOBILE : Empêcher la mise en veille profonde
-if ('wakeLock' in navigator) {
-    let wakeLock = null;
-    const requestWakeLock = async () => {
-        try {
-            wakeLock = await navigator.wakeLock.request('screen');
-        } catch (err) {}
-    };
-    audio.addEventListener('play', requestWakeLock);
-}
 </script>
     <div id="toast">Lien copié !</div>
 </body>

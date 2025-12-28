@@ -454,17 +454,28 @@ async function play(i) {
     const audio = document.getElementById('player');
     const titleDisplay = document.getElementById('now-playing-title');
     
-    // Visuel
+    // 1. Visuel : on marque l'épisode comme sélectionné dans la liste
     document.querySelectorAll('.list-item-ep').forEach(el => el.classList.remove('current'));
     document.getElementById(`ep-${i}`)?.classList.add('current');
-    titleDisplay.innerText = "Chargement : " + episodes[i].title;
+    
+    // 2. On affiche "Plongée en cours..." pendant l'attente
+    titleDisplay.innerText = "Plongée en cours : " + episodes[i].title;
 
-    // Récupération audio
+    // 3. Récupération de l'URL audio via ton API Google
     const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
+    
     if (audioUrl) {
         audio.src = audioUrl;
-        audio.play();
-        updateMediaSession(episodes[i].title);
+        
+        // 4. L'ACTION IMPORTANTE : On attend que le lecteur soit prêt
+        audio.oncanplay = () => {
+            // Une fois que l'audio peut jouer, on affiche le titre définitif
+            titleDisplay.innerText = episodes[i].title;
+            audio.play();
+            updateMediaSession(episodes[i].title);
+        };
+    } else {
+        titleDisplay.innerText = "Erreur de chargement";
     }
 }
 

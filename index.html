@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b0e14">
-
+<link rel="manifest" href="manifest.json">
 <style>
 * {
 margin: 0;
@@ -385,58 +385,40 @@ const filtered = allPlaylists.filter(p => p.season === season);
 const div = document.getElementById('episodes_list');
 
 div.innerHTML = `<h2>Playlists — ${season}</h2>` + filtered.map(p => {
-        // On remplace les apostrophes par leur code HTML pour éviter de casser le onclick
-        const safeId = String(p.id).replace(/'/g, "\\'"); 
-        // Nettoyage de l'ID pour qu'il ne casse pas le HTML
-        const safeId = String(p.id).replace(/'/g, "&apos;"); 
+// Nettoyage de l'ID pour qu'il ne casse pas le HTML
+const safeId = String(p.id).replace(/'/g, "&apos;"); 
 
 return `<div class="episode-item" onclick="loadEpisodes('${safeId}')">
-           <span class="episode-title"><strong>${p.name}</strong></span>
-           <button class="btn-share" onclick="sharePlaylist(event, '${safeId}')">🔗</button>
-       </div>`;
+          <span class="episode-title"><strong>${p.name}</strong></span>
+          <button class="btn-share" onclick="sharePlaylist(event, '${safeId}')">🔗</button>
+      </div>`;
 }).join('');
 }
 
 function sharePlaylist(event, pid) {
 event.stopPropagation();
 
-    // On crée l'URL propre de ton site GitHub
-    const baseUrl = window.location.origin + window.location.pathname;
-    const url = new URL(baseUrl);
-    
-    // set() gère automatiquement l'encodage des apostrophes, espaces et majuscules
-    // On reconstruit l'URL sans accumuler les anciens paramètres
-    const url = new URL(window.location.origin + window.location.pathname);
+// On reconstruit l'URL sans accumuler les anciens paramètres
+const url = new URL(window.location.origin + window.location.pathname);
 url.searchParams.set('playlistId', pid);
 
-    const finalUrl = url.toString();
-    const textToCopy = url.toString();
+const textToCopy = url.toString();
 
-    // Utilisation de l'API de presse-papier
-    // Méthode de copie moderne avec secours pour mobile
+// Méthode de copie moderne avec secours pour mobile
 if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(finalUrl).then(() => {
-            showToast();
-        }).catch(err => {
-            console.error("Erreur de copie :", err);
-        });
-        navigator.clipboard.writeText(textToCopy).then(showToast);
+navigator.clipboard.writeText(textToCopy).then(showToast);
 } else {
-        // Méthode de secours si navigator.clipboard n'est pas dispo
 const textArea = document.createElement("textarea");
-        textArea.value = finalUrl;
-        textArea.value = textToCopy;
+textArea.value = textToCopy;
 document.body.appendChild(textArea);
 textArea.select();
-        document.execCommand("copy");
-        try {
-            document.execCommand('copy');
-            showToast();
-        } catch (err) {
-            console.error('Erreur de copie manuelle', err);
-        }
+try {
+document.execCommand('copy');
+showToast();
+} catch (err) {
+console.error('Erreur de copie manuelle', err);
+}
 document.body.removeChild(textArea);
-        showToast();
 }
 }
 
@@ -447,24 +429,23 @@ setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 300
 }
 
 async function loadEpisodes(pid) {
-    // On décode l'ID au cas où il contiendrait des codes comme %20 ou %27
-    const cleanId = decodeURIComponent(pid);
-    
+// On décode l'ID au cas où il contiendrait des codes comme %20 ou %27
+const cleanId = decodeURIComponent(pid);
+
 const listDiv = document.getElementById('episodes_list');
 listDiv.innerHTML = '<div class="loader">Plongée...</div>';
-    episodes = await callApi(`action=getEpisodes&playlistId=${pid}`);
 
-    episodes = await callApi(`action=getEpisodes&playlistId=${encodeURIComponent(cleanId)}`);
-    
-    if (!episodes || episodes.length === 0) {
-        listDiv.innerHTML = '<p>Aucun épisode trouvé.</p>';
-        return;
-    }
+episodes = await callApi(`action=getEpisodes&playlistId=${encodeURIComponent(cleanId)}`);
+
+if (!episodes || episodes.length === 0) {
+listDiv.innerHTML = '<p>Aucun épisode trouvé.</p>';
+return;
+}
 
 listDiv.innerHTML = `<h3>Épisodes</h3>` + episodes.map((e, i) => `
-       <div class="episode-item list-item-ep" id="ep-${i}" onclick="play(${i})">
-           <span class="episode-title">${e.title}</span>
-       </div>`).join('');
+      <div class="episode-item list-item-ep" id="ep-${i}" onclick="play(${i})">
+          <span class="episode-title">${e.title}</span>
+      </div>`).join('');
 play(0);
 }
 
@@ -473,17 +454,59 @@ current = i;
 const audio = document.getElementById('player');
 const titleDisplay = document.getElementById('now-playing-title');
 
-// Visuel
+    // Visuel
+// 1. Visuel : on marque l'épisode comme sélectionné dans la liste
+    // 1. Visuel : on marque l'épisode dans la liste
 document.querySelectorAll('.list-item-ep').forEach(el => el.classList.remove('current'));
 document.getElementById(`ep-${i}`)?.classList.add('current');
-titleDisplay.innerText = "Chargement : " + episodes[i].title;
 
-// Récupération audio
+    titleDisplay.innerText = "Chargement : " + episodes[i].title;
+    
+// 2. On affiche "Plongée en cours..." pendant l'attente
+titleDisplay.innerText = "Plongée en cours : " + episodes[i].title;
+    // 2. On affiche un état d'attente discret
+    titleDisplay.innerText = "⌛ Connexion... " + episodes[i].title;
+
+    // Récupération audio
+// 3. Récupération de l'URL audio via ton API Google
+    const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
 const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
+
+    if (audioUrl) {
+        audio.src = audioUrl;
+    try {
+        // 3. Récupération de l'URL audio
+        const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
+
 if (audioUrl) {
 audio.src = audioUrl;
+        audio.play();
+        updateMediaSession(episodes[i].title);
+        
+// 4. L'ACTION IMPORTANTE : On attend que le lecteur soit prêt
+audio.oncanplay = () => {
+// Une fois que l'audio peut jouer, on affiche le titre définitif
+        if (audioUrl) {
+            audio.src = audioUrl;
+            
+            // 4. On change le titre TOUT DE SUITE avant de jouer
+titleDisplay.innerText = episodes[i].title;
+            titleDisplay.innerText = episodes[i].title;
 audio.play();
+            
+            // 5. On lance la lecture
+            await audio.play();
 updateMediaSession(episodes[i].title);
+            updateMediaSession(episodes[i].title);
+};
+} else {
+titleDisplay.innerText = "Erreur de chargement";
+        } else {
+            titleDisplay.innerText = "⚠️ Erreur : Lien introuvable";
+        }
+    } catch (err) {
+        console.error(err);
+        titleDisplay.innerText = "⚠️ Erreur réseau";
 }
 }
 
@@ -505,8 +528,22 @@ if (current + 1 < episodes.length) play(current + 1);
 };
 
 loadPlaylists();
+// Enregistrement du Service Worker
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('sw.js')
+.then(() => console.log("Service Worker prêt !"))
+.catch(err => console.log("Erreur SW", err));
+}
+
+// Optionnel : Forcer le réveil du processeur pour l'audio suivant
+const audio = document.getElementById('player');
+audio.addEventListener('play', () => {
+if ('wakeLock' in navigator) {
+navigator.wakeLock.request('screen').catch(() => {});
+}
+});
 </script>
 <div id="toast">Lien copié !</div>
 </body>
 </html>
-
+~

@@ -385,31 +385,28 @@ function showPlaylistsBySeason(season) {
     const div = document.getElementById('episodes_list');
     
     div.innerHTML = `<h2>Playlists — ${season}</h2>` + filtered.map(p => {
-        // 1. On protège l'ID pour le HTML (affichage et attributs)
-        const htmlSafeId = String(p.id).replace(/'/g, "&apos;");
-        
-        // 2. On protège l'ID pour le JavaScript (les fonctions onclick)
-        // On remplace ' par \' pour que le moteur JS ne croie pas que la chaîne s'arrête
-        const jsSafeId = String(p.id).replace(/'/g, "\\'"); 
+        // On encode l'ID en base64 pour éviter tout conflit de caractères (apostrophes, etc.)
+        const encodedId = btoa(unescape(encodeURIComponent(p.id)));
         
         return `
-        <div class="episode-item" onclick="loadEpisodes('${jsSafeId}')">
+        <div class="episode-item" onclick="loadEpisodes('${encodedId}', true)">
             <span class="episode-title"><strong>${p.name}</strong></span>
-            <button class="btn-share" onclick="sharePlaylist(event, '${jsSafeId}')">🔗</button>
+            <button class="btn-share" onclick="sharePlaylist(event, '${encodedId}')">🔗</button>
         </div>`;
     }).join('');
 }
 
-function sharePlaylist(event, pid) {
+function sharePlaylist(event, encodedPid) {
     event.stopPropagation();
     
-    // On reconstruit l'URL sans accumuler les anciens paramètres
+    // On décode l'ID pour que le lien final soit propre
+    const pid = decodeURIComponent(escape(atob(encodedPid)));
+    
     const url = new URL(window.location.origin + window.location.pathname);
     url.searchParams.set('playlistId', pid);
     
     const textToCopy = url.toString();
 
-    // Méthode de copie moderne avec secours pour mobile
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(textToCopy).then(showToast);
     } else {
@@ -417,25 +414,22 @@ function sharePlaylist(event, pid) {
         textArea.value = textToCopy;
         document.body.appendChild(textArea);
         textArea.select();
-        try {
-            document.execCommand('copy');
-            showToast();
-        } catch (err) {
-            console.error('Erreur de copie manuelle', err);
-        }
+        document.execCommand('copy');
+        showToast();
         document.body.removeChild(textArea);
     }
 }
-
+    
 function showToast() {
     const toast = document.getElementById("toast");
     toast.className = "show";
     setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
 }
     
-async function loadEpisodes(pid) {
-    // On décode l'ID au cas où il contiendrait des codes comme %20 ou %27
-    const cleanId = decodeURIComponent(pid);
+async function loadEpisodes(pid, isEncoded = false) {
+    // Si l'ID est encodé (vient du clic playlist), on le décode. 
+    // Sinon (vient de l'URL au chargement), on l'utilise tel quel.
+    const cleanId = isEncoded ? decodeURIComponent(escape(atob(pid))) : pid;
     
     const listDiv = document.getElementById('episodes_list');
     listDiv.innerHTML = '<div class="loader">Plongée...</div>';
@@ -453,7 +447,7 @@ async function loadEpisodes(pid) {
         </div>`).join('');
     play(0);
 }
-
+    
 async function play(i) {
     current = i;
     const audio = document.getElementById('player');

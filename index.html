@@ -385,23 +385,51 @@ function showPlaylistsBySeason(season) {
     const div = document.getElementById('episodes_list');
     
     div.innerHTML = `<h2>Playlists — ${season}</h2>` + filtered.map(p => {
-        return `<div class="episode-item" onclick="loadEpisodes('${p.id}')">
+        // On remplace les apostrophes par leur code HTML pour éviter de casser le onclick
+        const safeId = String(p.id).replace(/'/g, "\\'"); 
+        
+        return `<div class="episode-item" onclick="loadEpisodes('${safeId}')">
             <span class="episode-title"><strong>${p.name}</strong></span>
-            <button class="btn-share" onclick="sharePlaylist(event, '${p.id}')">🔗</button>
+            <button class="btn-share" onclick="sharePlaylist(event, '${safeId}')">🔗</button>
         </div>`;
     }).join('');
 }
 
 function sharePlaylist(event, pid) {
     event.stopPropagation();
-    const url = new URL(window.location.origin + window.location.pathname);
-    url.searchParams.set('playlistId', pid); // Le navigateur encode automatiquement ici
     
-    navigator.clipboard.writeText(url.toString()).then(() => {
-        const toast = document.getElementById("toast");
-        toast.className = "show";
-        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-    });
+    // On crée l'URL propre de ton site GitHub
+    const baseUrl = window.location.origin + window.location.pathname;
+    const url = new URL(baseUrl);
+    
+    // set() gère automatiquement l'encodage des apostrophes, espaces et majuscules
+    url.searchParams.set('playlistId', pid);
+    
+    const finalUrl = url.toString();
+
+    // Utilisation de l'API de presse-papier
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(finalUrl).then(() => {
+            showToast();
+        }).catch(err => {
+            console.error("Erreur de copie :", err);
+        });
+    } else {
+        // Méthode de secours si navigator.clipboard n'est pas dispo
+        const textArea = document.createElement("textarea");
+        textArea.value = finalUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        showToast();
+    }
+}
+
+function showToast() {
+    const toast = document.getElementById("toast");
+    toast.className = "show";
+    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
 }
     
 async function loadEpisodes(pid) {

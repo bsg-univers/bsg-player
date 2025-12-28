@@ -352,29 +352,29 @@ async function callApi(params) {
 }
 
 async function loadPlaylists() {
-    // 1. On vérifie si un ID de playlist est présent dans l'URL (ex: ?playlistId=123)
     const urlParams = new URLSearchParams(window.location.search);
-    const initialPlaylistId = urlParams.get('playlistId');
+    // On récupère l'ID et on remplace les "+" par des espaces pour la comparaison
+    const initialPlaylistId = urlParams.get('playlistId') ? decodeURIComponent(urlParams.get('playlistId').replace(/\+/g, ' ')) : null;
     
-    // 2. Récupération des données via ton API Google Apps Script
     allPlaylists = await callApi("action=getPlaylists");
     allPlaylists = allPlaylists.filter(p => p.public);
     
-    // 3. Extraction et affichage des saisons
     const seasons = [...new Set(allPlaylists.map(p => p.season))].sort().reverse();
     const div = document.getElementById('seasons_grid');
     div.innerHTML = seasons.map(s => `<div class="season-item" onclick="showPlaylistsBySeason('${s}')">${s}</div>`).join('');
 
-    // 4. LOGIQUE D'AFFICHAGE INITIALE
     if (initialPlaylistId) {
-        // Si on arrive via un lien de partage, on charge directement les épisodes
-        loadEpisodes(initialPlaylistId);
-        
-        // Optionnel : On sélectionne visuellement la saison de cette playlist
-        const sharedPlaylist = allPlaylists.find(p => p.id == initialPlaylistId);
-        if (sharedPlaylist) showPlaylistsBySeason(sharedPlaylist.season);
+        // On cherche la playlist pour connaître sa saison
+        const sharedPlaylist = allPlaylists.find(p => String(p.id).trim() === initialPlaylistId.trim());
+        if (sharedPlaylist) {
+            // 1. On affiche d'abord la saison pour que l'interface soit cohérente
+            showPlaylistsBySeason(sharedPlaylist.season);
+            // 2. Puis on charge les épisodes (cela remplacera la liste de la saison)
+            loadEpisodes(sharedPlaylist.id);
+        } else {
+            showPlaylistsBySeason(seasons[0]);
+        }
     } else {
-        // Sinon, on affiche la première saison par défaut
         showPlaylistsBySeason(seasons[0]);
     }
 }
@@ -393,11 +393,9 @@ function showPlaylistsBySeason(season) {
 }
 
 function sharePlaylist(event, pid) {
-    event.stopPropagation(); // Empêche de lancer la playlist quand on clique sur le bouton
-    
-    // On crée l'URL de partage basée sur l'adresse actuelle de GitHub
-    const url = new URL(window.location.href);
-    url.searchParams.set('playlistId', pid);
+    event.stopPropagation();
+    const url = new URL(window.location.origin + window.location.pathname);
+    url.searchParams.set('playlistId', pid); // Le navigateur encode automatiquement ici
     
     navigator.clipboard.writeText(url.toString()).then(() => {
         const toast = document.getElementById("toast");

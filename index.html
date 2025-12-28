@@ -429,18 +429,30 @@ function showToast() {
 }
     
 async function loadEpisodes(pid) {
-    // On décode l'ID au cas où il contiendrait des codes comme %20 ou %27
     const cleanId = decodeURIComponent(pid);
-    
     const listDiv = document.getElementById('episodes_list');
     listDiv.innerHTML = '<div class="loader">Plongée...</div>';
     
-    episodes = await callApi(`action=getEpisodes&playlistId=${encodeURIComponent(cleanId)}`);
+    // On récupère les épisodes
+    let rawEpisodes = await callApi(`action=getEpisodes&playlistId=${encodeURIComponent(cleanId)}`);
     
-    if (!episodes || episodes.length === 0) {
+    // SÉCURITÉ : On s'assure que les épisodes sont bien là et triés
+    if (!rawEpisodes || rawEpisodes.length === 0) {
         listDiv.innerHTML = '<p>Aucun épisode trouvé.</p>';
         return;
     }
+
+    // On stocke les épisodes dans la variable globale
+    episodes = rawEpisodes; 
+
+    listDiv.innerHTML = `<h3>Épisodes</h3>` + episodes.map((e, i) => `
+        <div class="episode-item list-item-ep" id="ep-${i}" onclick="play(${i})">
+            <span class="play-arrow">▶</span>
+            <span class="episode-title">${e.title}</span>
+        </div>`).join('');
+    
+    play(0); // Lance le premier de la liste
+}
 
     listDiv.innerHTML = `<h3>Épisodes</h3>` + episodes.map((e, i) => `
         <div class="episode-item list-item-ep" id="ep-${i}" onclick="play(${i})">
@@ -449,37 +461,38 @@ async function loadEpisodes(pid) {
     play(0);
 }
 
+let nextUrlCache = null; // Variable pour stocker l'URL du prochain
+
 async function play(i) {
     current = i;
+    nextUrlCache = null; // On vide le cache du suivant
     const audio = document.getElementById('player');
     const titleDisplay = document.getElementById('now-playing-title');
     
-    // 1. Visuel : on marque l'épisode dans la liste
     document.querySelectorAll('.list-item-ep').forEach(el => el.classList.remove('current'));
     document.getElementById(`ep-${i}`)?.classList.add('current');
     
-    // 2. On affiche un état d'attente discret
     titleDisplay.innerText = "⌛ Connexion... " + episodes[i].title;
 
     try {
-        // 3. Récupération de l'URL audio
         const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
         
         if (audioUrl) {
             audio.src = audioUrl;
-            
-            // 4. On change le titre TOUT DE SUITE avant de jouer
             titleDisplay.innerText = episodes[i].title;
-            
-            // 5. On lance la lecture
             await audio.play();
             updateMediaSession(episodes[i].title);
-        } else {
-            titleDisplay.innerText = "⚠️ Erreur : Lien introuvable";
+
+            // --- LA RUSE : On pré-charge l'URL du SUIVANT (i+1) tout de suite ---
+            if (i + 1 < episodes.length) {
+                callApi(`action=getAudio&guid=${episodes[i+1].guid}`).then(url => {
+                    nextUrlCache = url;
+                    console.log("Prochain épisode prêt en coulisses");
+                });
+            }
         }
     } catch (err) {
-        console.error(err);
-        titleDisplay.innerText = "⚠️ Erreur réseau";
+        titleDisplay.innerText = "⚠️ Erreur de lecture";
     }
 }
 

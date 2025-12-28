@@ -361,14 +361,32 @@ async function loadPlaylists() {
 }
 
 function showPlaylistsBySeason(season) {
+    selectedSeason = season;
     const filtered = allPlaylists.filter(p => p.season === season);
     const div = document.getElementById('episodes_list');
-    div.innerHTML = `<h2>Playlists — ${season}</h2>` + filtered.map(p => `
-        <div class="episode-item" onclick="loadEpisodes('${p.id}')">
+    
+    div.innerHTML = `<h2>Playlists — ${season}</h2>` + filtered.map(p => {
+        return `<div class="episode-item" onclick="loadEpisodes('${p.id}')">
             <span class="episode-title"><strong>${p.name}</strong></span>
-        </div>`).join('');
+            <button class="btn-share" onclick="sharePlaylist(event, '${p.id}')">🔗</button>
+        </div>`;
+    }).join('');
 }
 
+function sharePlaylist(event, pid) {
+    event.stopPropagation(); // Empêche de lancer la playlist quand on clique sur le bouton
+    
+    // On crée l'URL de partage basée sur l'adresse actuelle de GitHub
+    const url = new URL(window.location.href);
+    url.searchParams.set('playlistId', pid);
+    
+    navigator.clipboard.writeText(url.toString()).then(() => {
+        const toast = document.getElementById("toast");
+        toast.className = "show";
+        setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    });
+}
+    
 async function loadEpisodes(pid) {
     const listDiv = document.getElementById('episodes_list');
     listDiv.innerHTML = '<div class="loader">Plongée...</div>';
@@ -419,6 +437,7 @@ document.getElementById('player').onended = () => {
 
 loadPlaylists();
 </script>
+    <div id="toast">Lien copié !</div>
 </body>
 </html>
 

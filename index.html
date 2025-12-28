@@ -508,13 +508,30 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.log("Erreur SW", err));
 }
 
-// Optionnel : Forcer le réveil du processeur pour l'audio suivant
 const audio = document.getElementById('player');
-audio.addEventListener('play', () => {
-  if ('wakeLock' in navigator) {
-    navigator.wakeLock.request('screen').catch(() => {});
-  }
+
+audio.addEventListener('ended', async () => {
+    if (current + 1 < episodes.length) {
+        const nextIndex = current + 1;
+        
+        // On affiche un message spécial
+        document.getElementById('now-playing-title').innerText = "Transition vers l'épisode suivant...";
+        
+        // On lance immédiatement la fonction play pour le suivant
+        await play(nextIndex);
+    }
 });
+
+// ASTUCE MOBILE : Empêcher la mise en veille profonde
+if ('wakeLock' in navigator) {
+    let wakeLock = null;
+    const requestWakeLock = async () => {
+        try {
+            wakeLock = await navigator.wakeLock.request('screen');
+        } catch (err) {}
+    };
+    audio.addEventListener('play', requestWakeLock);
+}
 </script>
     <div id="toast">Lien copié !</div>
 </body>

@@ -385,12 +385,17 @@ function showPlaylistsBySeason(season) {
     const div = document.getElementById('episodes_list');
     
     div.innerHTML = `<h2>Playlists — ${season}</h2>` + filtered.map(p => {
-        // Nettoyage de l'ID pour qu'il ne casse pas le HTML
-        const safeId = String(p.id).replace(/'/g, "&apos;"); 
+        // 1. On protège l'ID pour le HTML (affichage et attributs)
+        const htmlSafeId = String(p.id).replace(/'/g, "&apos;");
         
-        return `<div class="episode-item" onclick="loadEpisodes('${safeId}')">
+        // 2. On protège l'ID pour le JavaScript (les fonctions onclick)
+        // On remplace ' par \' pour que le moteur JS ne croie pas que la chaîne s'arrête
+        const jsSafeId = String(p.id).replace(/'/g, "\\'"); 
+        
+        return `
+        <div class="episode-item" onclick="loadEpisodes('${jsSafeId}')">
             <span class="episode-title"><strong>${p.name}</strong></span>
-            <button class="btn-share" onclick="sharePlaylist(event, '${safeId}')">🔗</button>
+            <button class="btn-share" onclick="sharePlaylist(event, '${jsSafeId}')">🔗</button>
         </div>`;
     }).join('');
 }

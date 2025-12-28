@@ -397,48 +397,27 @@ return `<div class="episode-item" onclick="loadEpisodes('${safeId}')">
 }).join('');
 }
 
-function sharePlaylist(event, pid) {
-event.stopPropagation();
+function sharePlaylist(event, encodedPid) {
+    event.stopPropagation();
 
-    // On crée l'URL propre de ton site GitHub
-    const baseUrl = window.location.origin + window.location.pathname;
-    const url = new URL(baseUrl);
-    
-    // set() gère automatiquement l'encodage des apostrophes, espaces et majuscules
-    // On reconstruit l'URL sans accumuler les anciens paramètres
     const url = new URL(window.location.origin + window.location.pathname);
-url.searchParams.set('playlistId', pid);
+    url.searchParams.set('playlistId', encodedPid); // ON GARDE ENCODÉ
 
-    const finalUrl = url.toString();
     const textToCopy = url.toString();
 
-    // Utilisation de l'API de presse-papier
-    // Méthode de copie moderne avec secours pour mobile
-if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(finalUrl).then(() => {
-            showToast();
-        }).catch(err => {
-            console.error("Erreur de copie :", err);
-        });
+    if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(textToCopy).then(showToast);
-} else {
-        // Méthode de secours si navigator.clipboard n'est pas dispo
-const textArea = document.createElement("textarea");
-        textArea.value = finalUrl;
+    } else {
+        const textArea = document.createElement("textarea");
         textArea.value = textToCopy;
-document.body.appendChild(textArea);
-textArea.select();
-        document.execCommand("copy");
-        try {
-            document.execCommand('copy');
-            showToast();
-        } catch (err) {
-            console.error('Erreur de copie manuelle', err);
-        }
-document.body.removeChild(textArea);
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
         showToast();
+    }
 }
-}
+
 
 function showToast() {
 const toast = document.getElementById("toast");

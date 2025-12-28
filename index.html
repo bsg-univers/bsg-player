@@ -454,47 +454,33 @@ current = i;
 const audio = document.getElementById('player');
 const titleDisplay = document.getElementById('now-playing-title');
 
+    // Visuel
     // 1. Visuel : on marque l'épisode comme sélectionné dans la liste
-    // 1. Visuel : on marque l'épisode dans la liste
 document.querySelectorAll('.list-item-ep').forEach(el => el.classList.remove('current'));
 document.getElementById(`ep-${i}`)?.classList.add('current');
-
+    titleDisplay.innerText = "Chargement : " + episodes[i].title;
+    
     // 2. On affiche "Plongée en cours..." pendant l'attente
     titleDisplay.innerText = "Plongée en cours : " + episodes[i].title;
-    // 2. On affiche un état d'attente discret
-    titleDisplay.innerText = "⌛ Connexion... " + episodes[i].title;
 
+    // Récupération audio
     // 3. Récupération de l'URL audio via ton API Google
-    const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
+const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
     
-    if (audioUrl) {
-        audio.src = audioUrl;
-    try {
-        // 3. Récupération de l'URL audio
-        const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
-
+if (audioUrl) {
+audio.src = audioUrl;
+        audio.play();
+        updateMediaSession(episodes[i].title);
+        
         // 4. L'ACTION IMPORTANTE : On attend que le lecteur soit prêt
         audio.oncanplay = () => {
             // Une fois que l'audio peut jouer, on affiche le titre définitif
-        if (audioUrl) {
-            audio.src = audioUrl;
-            
-            // 4. On change le titre TOUT DE SUITE avant de jouer
-titleDisplay.innerText = episodes[i].title;
+            titleDisplay.innerText = episodes[i].title;
             audio.play();
-            
-            // 5. On lance la lecture
-            await audio.play();
-updateMediaSession(episodes[i].title);
+            updateMediaSession(episodes[i].title);
         };
     } else {
         titleDisplay.innerText = "Erreur de chargement";
-        } else {
-            titleDisplay.innerText = "⚠️ Erreur : Lien introuvable";
-        }
-    } catch (err) {
-        console.error(err);
-        titleDisplay.innerText = "⚠️ Erreur réseau";
 }
 }
 

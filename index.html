@@ -352,12 +352,31 @@ async function callApi(params) {
 }
 
 async function loadPlaylists() {
+    // 1. On vérifie si un ID de playlist est présent dans l'URL (ex: ?playlistId=123)
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialPlaylistId = urlParams.get('playlistId');
+    
+    // 2. Récupération des données via ton API Google Apps Script
     allPlaylists = await callApi("action=getPlaylists");
     allPlaylists = allPlaylists.filter(p => p.public);
+    
+    // 3. Extraction et affichage des saisons
     const seasons = [...new Set(allPlaylists.map(p => p.season))].sort().reverse();
     const div = document.getElementById('seasons_grid');
     div.innerHTML = seasons.map(s => `<div class="season-item" onclick="showPlaylistsBySeason('${s}')">${s}</div>`).join('');
-    showPlaylistsBySeason(seasons[0]);
+
+    // 4. LOGIQUE D'AFFICHAGE INITIALE
+    if (initialPlaylistId) {
+        // Si on arrive via un lien de partage, on charge directement les épisodes
+        loadEpisodes(initialPlaylistId);
+        
+        // Optionnel : On sélectionne visuellement la saison de cette playlist
+        const sharedPlaylist = allPlaylists.find(p => p.id == initialPlaylistId);
+        if (sharedPlaylist) showPlaylistsBySeason(sharedPlaylist.season);
+    } else {
+        // Sinon, on affiche la première saison par défaut
+        showPlaylistsBySeason(seasons[0]);
+    }
 }
 
 function showPlaylistsBySeason(season) {

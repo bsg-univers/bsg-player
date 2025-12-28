@@ -1,12 +1,17 @@
-self.addEventListener('install', (e) => {
-  self.skipWaiting();
-});
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(clients.claim());
-});
-
-// Permet au navigateur de savoir que l'app peut fonctionner hors-ligne/arrière-plan
-self.addEventListener('fetch', (e) => {
-  e.respondWith(fetch(e.request));
+// Cette partie permet de garder le script "vivant" pendant les requêtes API
+self.addEventListener('fetch', (event) => {
+  if (event.request.url.includes('script.google.com')) {
+    event.respondWith(
+      fetch(event.request).catch(err => {
+        return new Response(JSON.stringify({error: "Offline"}), {
+          headers: { 'Content-Type': 'application/json' }
+        });
+      })
+    );
+  } else {
+    event.respondWith(fetch(event.request));
+  }
 });

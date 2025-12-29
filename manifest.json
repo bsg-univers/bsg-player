@@ -1,16 +1,1 @@
-{
-  "name": "Baleine sous Gravillon",
-  "short_name": "BSG Player",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#0b0e14",
-  "theme_color": "#f3c300",
-  "description": "Lecteur audio pour les aventures de BSG.",
-  "icons": [
-    {
-      "src": "https://image.ausha.co/CQMRa8hZ950ZAamQlgLxjsA38VuxGAXyvYCZXFXK_400x400.jpeg",
-      "sizes": "400x400",
-      "type": "image/jpeg"
-    }
-  ]
-}
+

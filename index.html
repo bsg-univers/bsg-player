@@ -205,20 +205,6 @@ h2,h3{
   animation-play-state: paused; /* S'arrête quand on le survole */
 }
 
-/* Effet de reflet qui passe sur le bouton au survol */
-.season-item::after {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -60%;
-  width: 20%;
-  height: 200%;
-  background: rgba(255,255,255,0.2);
-  transform: rotate(30deg);
-  transition: all 0.7s;
-  pointer-events: none;
-}
-
 .season-item:hover::after {
   left: 120%;
 }
@@ -249,7 +235,6 @@ h2,h3{
     linear-gradient(160deg,
       rgba(255,255,255,0.08),
       rgba(255,255,255,0.02));
-  padding-left: 30px;
 }
 
 .episode-item.current{

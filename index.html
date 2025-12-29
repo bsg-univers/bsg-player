@@ -234,6 +234,11 @@ h2,h3{
   cursor:pointer;
   border-left:0 solid var(--primary);
   transition:all .25s ease;
+        /* Supprime le rectangle bleu sur mobile */
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Supprime le contour de sélection au focus (clavier/accessibilité) */
+  outline: none;
 }
 
 .episode-item:hover{

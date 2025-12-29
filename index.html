@@ -3,32 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" sizes="32x32" href="https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png">
+    
+    <link rel="icon" type="image/png" href="https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png">
+    <link rel="apple-touch-icon" href="https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png">
 
-<link rel="manifest" href='data:application/manifest+json,{"name":"Baleine sous gravillon","short_name":"BSG","start_url":"/","display":"standalone","background_color":"#0b0e14","theme_color":"#f3c300","icons":[{"src":"https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png","sizes":"192x192","type":"image/png"},{"src":"https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png","sizes":"512x512","type":"image/png"}]}'>
+    <link rel="manifest" href='data:application/manifest+json,{"name":"Baleine sous gravillon","short_name":"BSG","start_url":".","display":"standalone","background_color":"#0b0e14","theme_color":"#f3c300","icons":[{"src":"https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]}'>
 
-<link rel="apple-touch-icon" href="https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png">
-   
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0b0e14">
-
     <title>Baleine sous gravillon – Lecteur</title>
-<meta name="title" content="Baleine sous gravillon — Le podcast du Vivant">
-<meta name="description" content="Plongez dans les profondeurs du vivant avec notre lecteur de playlists dédié.">
+    <meta name="title" content="Baleine sous gravillon — Le podcast du Vivant">
+    <meta name="description" content="Plongez dans les profondeurs du vivant avec notre lecteur de playlists dédié.">
 
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://bsg-univers.github.io/bsg-player/">
-<meta property="og:title" content="Baleine sous gravillon — Le podcast du Vivant">
-<meta property="og:description" content="Écoutez nos épisodes et playlists thématiques. Une immersion sonore unique.">
-<meta property="og:image" content="https://baleinesousgravillon.com//wp-content//uploads//2021//10//BSG_Logo_rond_titre_noir.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bsg-univers.github.io/bsg-player/">
+    <meta property="og:title" content="Baleine sous gravillon — Le podcast du Vivant">
+    <meta property="og:description" content="Écoutez nos épisodes et playlists thématiques. Une immersion sonore unique.">
+    <meta property="og:image" content="https://baleinesousgravillon.com//wp-content//uploads//2021//10//BSG_Logo_rond_titre_noir.png">
 
-<meta property="twitter:card" content="summary_large_image">
-<meta property="twitter:title" content="Baleine sous gravillon — Lecteur">
-<meta property="twitter:description" content="Plongez dans les profondeurs du Vivant.">
-<meta property="twitter:image" content="https://baleinesousgravillon.com//wp-content//uploads//2021//10//BSG_Logo_rond_titre_noir.png">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Baleine sous gravillon — Lecteur">
+    <meta property="twitter:description" content="Plongez dans les profondeurs du Vivant.">
+    <meta property="twitter:image" content="https://baleinesousgravillon.com//wp-content//uploads//2021//10//BSG_Logo_rond_titre_noir.png">
 
-<link rel="manifest" href="manifest.json">
     <style>
 * {
   margin: 0;
@@ -447,10 +445,12 @@ audio {
 
 <script>
 // --- CONFIGURATION ---
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwm-8iBh2aMDepvxSHpl0ywwlZpWIaEEh7veSNYyEG-X0gSalh6--vbhxyV4PR2GXMjvQ/exec"; // METS TON URL ICI
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwm-8iBh2aMDepvxSHpl0ywwlZpWIaEEh7veSNYyEG-X0gSalh6--vbhxyV4PR2GXMjvQ/exec";
 let episodes = [];
 let current = 0;
 let allPlaylists = [];
+const audio = document.getElementById('player');
+const titleDisplay = document.getElementById('now-playing-title');
 
 // --- LOGIQUE API ---
 async function callApi(params) {
@@ -461,7 +461,6 @@ async function callApi(params) {
 
 async function loadPlaylists() {
     const urlParams = new URLSearchParams(window.location.search);
-    // On récupère l'ID et on remplace les "+" par des espaces pour la comparaison
     const initialPlaylistId = urlParams.get('playlistId') ? decodeURIComponent(urlParams.get('playlistId').replace(/\+/g, ' ')) : null;
     
     allPlaylists = await callApi("action=getPlaylists");
@@ -472,12 +471,9 @@ async function loadPlaylists() {
     div.innerHTML = seasons.map(s => `<div class="season-item" onclick="showPlaylistsBySeason('${s}')">${s}</div>`).join('');
 
     if (initialPlaylistId) {
-        // On cherche la playlist pour connaître sa saison
         const sharedPlaylist = allPlaylists.find(p => String(p.id).trim() === initialPlaylistId.trim());
         if (sharedPlaylist) {
-            // 1. On affiche d'abord la saison pour que l'interface soit cohérente
             showPlaylistsBySeason(sharedPlaylist.season);
-            // 2. Puis on charge les épisodes (cela remplacera la liste de la saison)
             loadEpisodes(sharedPlaylist.id);
         } else {
             showPlaylistsBySeason(seasons[0]);
@@ -488,27 +484,15 @@ async function loadPlaylists() {
 }
 
 function showPlaylistsBySeason(season) {
-    // Retirer la classe active de tous les boutons
     document.querySelectorAll('.season-item').forEach(btn => {
-        btn.style.borderColor = "rgba(243, 195, 0, 0.2)";
-        btn.style.background = "rgba(255, 255, 255, 0.03)";
-        btn.style.color = "white";
-        
-        // Si c'est le bouton cliqué, on le met en avant
-        if(btn.innerText === season) {
-            btn.style.borderColor = "var(--primary)";
-            btn.style.background = "rgba(243, 195, 0, 0.15)";
-        }
+        btn.style.borderColor = btn.innerText === season ? "var(--primary)" : "rgba(243, 195, 0, 0.2)";
+        btn.style.background = btn.innerText === season ? "rgba(243, 195, 0, 0.15)" : "rgba(255, 255, 255, 0.03)";
     });
     
-    selectedSeason = season;
     const filtered = allPlaylists.filter(p => p.season === season);
     const div = document.getElementById('episodes_list');
-    
     div.innerHTML = `<h2>Playlists — ${season}</h2>` + filtered.map(p => {
-        // On encode l'ID en base64 pour éviter tout conflit de caractères (apostrophes, etc.)
         const encodedId = btoa(unescape(encodeURIComponent(p.id)));
-        
         return `
         <div class="episode-item" onclick="loadEpisodes('${encodedId}', true)">
             <span class="episode-title"><strong>${p.name}</strong></span>
@@ -519,42 +503,22 @@ function showPlaylistsBySeason(season) {
 
 function sharePlaylist(event, encodedPid) {
     event.stopPropagation();
-    
-    // On décode l'ID pour que le lien final soit propre
     const pid = decodeURIComponent(escape(atob(encodedPid)));
-    
     const url = new URL(window.location.origin + window.location.pathname);
     url.searchParams.set('playlistId', pid);
-    
-    const textToCopy = url.toString();
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(textToCopy).then(showToast);
-    } else {
-        const textArea = document.createElement("textarea");
-        textArea.value = textToCopy;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        showToast();
-        document.body.removeChild(textArea);
-    }
+    navigator.clipboard.writeText(url.toString()).then(showToast);
 }
     
 function showToast() {
     const toast = document.getElementById("toast");
     toast.className = "show";
-    setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+    setTimeout(() => { toast.className = ""; }, 3000);
 }
     
 async function loadEpisodes(pid, isEncoded = false) {
-    // Si l'ID est encodé (vient du clic playlist), on le décode. 
-    // Sinon (vient de l'URL au chargement), on l'utilise tel quel.
     const cleanId = isEncoded ? decodeURIComponent(escape(atob(pid))) : pid;
-    
     const listDiv = document.getElementById('episodes_list');
     listDiv.innerHTML = '<div class="loader">Plongée...</div>';
-    
     episodes = await callApi(`action=getEpisodes&playlistId=${encodeURIComponent(cleanId)}`);
     
     if (!episodes || episodes.length === 0) {
@@ -572,99 +536,58 @@ async function loadEpisodes(pid, isEncoded = false) {
     
 async function play(i) {
     current = i;
-    const audio = document.getElementById('player');
-        // Synchronisation pour Firefox Mobile
-audio.addEventListener('play', () => {
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.playbackState = "playing";
-    }
-});
-
-audio.addEventListener('pause', () => {
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.playbackState = "paused";
-    }
-});
-    const titleDisplay = document.getElementById('now-playing-title');
-    
-    // 1. Visuel : on marque l'épisode comme sélectionné dans la liste
     document.querySelectorAll('.list-item-ep').forEach(el => el.classList.remove('current'));
     document.getElementById(`ep-${i}`)?.classList.add('current');
     
-    // 2. On affiche "Plongée en cours..." pendant l'attente
     titleDisplay.innerText = "Plongée en cours : " + episodes[i].title;
 
-    // 3. Récupération de l'URL audio via ton API Google
     const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
     
     if (audioUrl) {
         audio.src = audioUrl;
-        
-        // 4. L'ACTION IMPORTANTE : On attend que le lecteur soit prêt
         audio.oncanplay = () => {
-            // Une fois que l'audio peut jouer, on affiche le titre définitif
             titleDisplay.innerText = episodes[i].title;
             audio.play();
             updateMediaSession(episodes[i].title);
         };
-    } else {
-        titleDisplay.innerText = "Erreur de chargement";
     }
 }
 
 function updateMediaSession(title) {
     if ('mediaSession' in navigator) {
-        // 1. On définit les métadonnées (Firefox exige souvent l'album/artiste pour valider la session)
         navigator.mediaSession.metadata = new MediaMetadata({
             title: title,
             artist: "Baleine sous gravillon",
             album: "Le podcast du Vivant",
-            artwork: [
-                { src: 'https://image.ausha.co/CQMRa8hZ950ZAamQlgLxjsA38VuxGAXyvYCZXFXK_400x400.jpeg', sizes: '400x400', type: 'image/jpeg' }
-            ]
+            artwork: [{ src: 'https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png', sizes: '270x270', type: 'image/png' }]
         });
 
-        // 2. Firefox a besoin de voir 'play' et 'pause' pour autoriser les autres boutons
-        navigator.mediaSession.setActionHandler('play', () => {
-            document.getElementById('player').play();
-            navigator.mediaSession.playbackState = "playing";
-        });
+        navigator.mediaSession.setActionHandler('play', () => audio.play());
+        navigator.mediaSession.setActionHandler('pause', () => audio.pause());
         
-        navigator.mediaSession.setActionHandler('pause', () => {
-            document.getElementById('player').pause();
-            navigator.mediaSession.playbackState = "paused";
-        });
-
-        // 3. Les boutons de navigation
-        navigator.mediaSession.setActionHandler('previoustrack', () => {
-            if(current - 1 >= 0) play(current - 1);
-        });
-
-        navigator.mediaSession.setActionHandler('nexttrack', () => {
-            if(current + 1 < episodes.length) play(current + 1);
-        });
+        // Firefox a besoin que ces handlers soient ré-attachés
+        navigator.mediaSession.setActionHandler('previoustrack', current > 0 ? () => play(current - 1) : null);
+        navigator.mediaSession.setActionHandler('nexttrack', current + 1 < episodes.length ? () => play(current + 1) : null);
     }
 }
 
-document.getElementById('player').onended = () => {
-    if (current + 1 < episodes.length) play(current + 1);
-};
-
-loadPlaylists();
-    // Enregistrement du Service Worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
-    .then(() => console.log("Service Worker prêt !"))
-    .catch(err => console.log("Erreur SW", err));
-}
-
-    const audioElem = document.getElementById('player');
-audioElem.addEventListener('play', () => {
+// Gestionnaires d'événements uniques
+audio.addEventListener('play', () => {
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
 });
-audioElem.addEventListener('pause', () => {
+audio.addEventListener('pause', () => {
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
 });
+audio.addEventListener('ended', () => {
+    if (current + 1 < episodes.length) play(current + 1);
+});
+
+// Init
+loadPlaylists();
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log("Erreur SW", err));
+}
 </script>
     <div id="toast">Lien copié !</div>
 </body>

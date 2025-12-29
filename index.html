@@ -166,6 +166,12 @@ h2,h3{
   z-index: 1;
   overflow: hidden;
 
+    /* Supprime le rectangle bleu sur mobile */
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Supprime le contour de sélection au focus (clavier/accessibilité) */
+  outline: none;
+    
   /* Forme "Galet" irrégulière */
   border-radius: 60% 40% 70% 30% / 40% 50% 60% 40%;
   

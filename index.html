@@ -573,6 +573,19 @@ async function loadEpisodes(pid, isEncoded = false) {
 async function play(i) {
     current = i;
     const audio = document.getElementById('player');
+
+// Synchronisation pour Firefox Mobile
+audio.addEventListener('play', () => {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = "playing";
+    }
+});
+
+audio.addEventListener('pause', () => {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = "paused";
+    }
+});
     const titleDisplay = document.getElementById('now-playing-title');
     
     // 1. Visuel : on marque l'épisode comme sélectionné dans la liste
@@ -605,11 +618,27 @@ function updateMediaSession(title) {
         navigator.mediaSession.metadata = new MediaMetadata({
             title: title,
             artist: "Baleine sous gravillon",
-            artwork: [{ src: 'https://image.ausha.co/CQMRa8hZ950ZAamQlgLxjsA38VuxGAXyvYCZXFXK_400x400.jpeg', sizes: '400x400', type: 'image/jpeg' }]
+            album: "Le podcast du Vivant",
+            artwork: [
+                { src: 'https://image.ausha.co/CQMRa8hZ950ZAamQlgLxjsA38VuxGAXyvYCZXFXK_400x400.jpeg', sizes: '400x400', type: 'image/jpeg' }
+            ]
         });
-        
-        navigator.mediaSession.setActionHandler('nexttrack', () => { if(current+1 < episodes.length) play(current+1); });
-        navigator.mediaSession.setActionHandler('previoustrack', () => { if(current-1 >= 0) play(current-1); });
+
+        // Gestion des boutons - Firefox demande souvent que l'état soit clair
+        const actions = [
+            ['play', () => { document.getElementById('player').play(); }],
+            ['pause', () => { document.getElementById('player').pause(); }],
+            ['previoustrack', () => { if(current-1 >= 0) play(current-1); }],
+            ['nexttrack', () => { if(current+1 < episodes.length) play(current+1); }]
+        ];
+
+        for (const [action, handler] of actions) {
+            try {
+                navigator.mediaSession.setActionHandler(action, handler);
+            } catch (error) {
+                console.log(`L'action "${action}" n'est pas supportée.`);
+            }
+        }
     }
 }
 

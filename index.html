@@ -444,6 +444,7 @@ async function loadEpisodes(pid, isEncoded = false) {
     listDiv.innerHTML = `<h3>Épisodes</h3>` + episodes.map((e, i) => `
         <div class="episode-item list-item-ep" id="ep-${i}" onclick="play(${i})">
             <span class="episode-title">${e.title}</span>
+            <span style="color:var(--primary); font-size: 0.8em;">▶</span>
         </div>`).join('');
     play(0);
 }

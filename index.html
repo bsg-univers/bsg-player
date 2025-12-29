@@ -146,45 +146,85 @@ h2,h3{
 }
 
 /* ===================== */
-/*      SAISONS          */
+/* SAISONS RELOADED    */
 /* ===================== */
-.grid-list{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-  gap:14px;
+.grid-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 20px;
+  perspective: 1000px; /* Pour un effet de profondeur */
 }
 
-.season-item{
-  padding: 16px 12px; /* Plus grande zone de clic */
-  font-weight: 600;
-  font-size: 1rem;
-  border-radius:14px;
-  text-align:center;
-  cursor:pointer;
+.season-item {
+  position: relative;
+  padding: 20px 15px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.9);
+  text-align: center;
+  cursor: pointer;
+  z-index: 1;
+  overflow: hidden;
 
-  background:
-    linear-gradient(145deg,
-      rgba(255,255,255,0.06),
-      rgba(255,255,255,0.01));
-  border:1px solid rgba(255,255,255,0.08);
+  /* Forme "Galet" irrégulière */
+  border-radius: 60% 40% 70% 30% / 40% 50% 60% 40%;
+  
+  /* Look Abyss Glass */
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(243, 195, 0, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  
+  /* Ombre douce et lueur interne */
+  box-shadow: 
+    0 10px 20px rgba(0,0,0,0.3),
+    inset 0 0 15px rgba(243, 195, 0, 0.05);
 
-  backdrop-filter:blur(10px);
-  box-shadow:
-    inset 0 0 0 1px rgba(0,0,0,0.4),
-    0 5px 15px rgba(0,0,0,0.6);
-
-  transition:all .3s ease;
+  /* Animation de flottaison */
+  animation: float 6s ease-in-out infinite;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.season-item:hover{
-  background:
-    linear-gradient(145deg,
-      rgba(243,195,0,0.9),
-      rgba(243,195,0,0.65));
-  color:#111;
-  transform:translateY(-4px);
-  box-shadow:
-    0 5px 15px rgba(0,0,0,0.8);
+/* On décale l'animation pour chaque bouton pour un effet naturel */
+.season-item:nth-child(even) {
+  animation-duration: 7s;
+  border-radius: 40% 60% 35% 65% / 50% 40% 60% 50%;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+
+.season-item:hover {
+  background: var(--primary);
+  color: #0b0e14;
+  transform: scale(1.1) rotate(-2deg);
+  border-color: var(--primary);
+  box-shadow: 0 15px 30px rgba(243, 195, 0, 0.3);
+  animation-play-state: paused; /* S'arrête quand on le survole */
+}
+
+/* Effet de reflet qui passe sur le bouton au survol */
+.season-item::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 20%;
+  height: 200%;
+  background: rgba(255,255,255,0.2);
+  transform: rotate(30deg);
+  transition: all 0.7s;
+  pointer-events: none;
+}
+
+.season-item:hover::after {
+  left: 120%;
+}
+
+.season-item:active {
+  transform: scale(0.95);
 }
 
 /* ===================== */
@@ -209,6 +249,7 @@ h2,h3{
     linear-gradient(160deg,
       rgba(255,255,255,0.08),
       rgba(255,255,255,0.02));
+  padding-left: 30px;
 }
 
 .episode-item.current{
@@ -398,6 +439,19 @@ async function loadPlaylists() {
 }
 
 function showPlaylistsBySeason(season) {
+    // Retirer la classe active de tous les boutons
+    document.querySelectorAll('.season-item').forEach(btn => {
+        btn.style.borderColor = "rgba(243, 195, 0, 0.2)";
+        btn.style.background = "rgba(255, 255, 255, 0.03)";
+        btn.style.color = "white";
+        
+        // Si c'est le bouton cliqué, on le met en avant
+        if(btn.innerText === season) {
+            btn.style.borderColor = "var(--primary)";
+            btn.style.background = "rgba(243, 195, 0, 0.15)";
+        }
+    });
+    
     selectedSeason = season;
     const filtered = allPlaylists.filter(p => p.season === season);
     const div = document.getElementById('episodes_list');

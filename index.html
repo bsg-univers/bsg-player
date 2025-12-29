@@ -573,8 +573,7 @@ async function loadEpisodes(pid, isEncoded = false) {
 async function play(i) {
     current = i;
     const audio = document.getElementById('player');
-
-// Synchronisation pour Firefox Mobile
+        // Synchronisation pour Firefox Mobile
 audio.addEventListener('play', () => {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = "playing";
@@ -615,6 +614,7 @@ audio.addEventListener('pause', () => {
 
 function updateMediaSession(title) {
     if ('mediaSession' in navigator) {
+        // 1. On définit les métadonnées (Firefox exige souvent l'album/artiste pour valider la session)
         navigator.mediaSession.metadata = new MediaMetadata({
             title: title,
             artist: "Baleine sous gravillon",
@@ -624,21 +624,25 @@ function updateMediaSession(title) {
             ]
         });
 
-        // Gestion des boutons - Firefox demande souvent que l'état soit clair
-        const actions = [
-            ['play', () => { document.getElementById('player').play(); }],
-            ['pause', () => { document.getElementById('player').pause(); }],
-            ['previoustrack', () => { if(current-1 >= 0) play(current-1); }],
-            ['nexttrack', () => { if(current+1 < episodes.length) play(current+1); }]
-        ];
+        // 2. Firefox a besoin de voir 'play' et 'pause' pour autoriser les autres boutons
+        navigator.mediaSession.setActionHandler('play', () => {
+            document.getElementById('player').play();
+            navigator.mediaSession.playbackState = "playing";
+        });
+        
+        navigator.mediaSession.setActionHandler('pause', () => {
+            document.getElementById('player').pause();
+            navigator.mediaSession.playbackState = "paused";
+        });
 
-        for (const [action, handler] of actions) {
-            try {
-                navigator.mediaSession.setActionHandler(action, handler);
-            } catch (error) {
-                console.log(`L'action "${action}" n'est pas supportée.`);
-            }
-        }
+        // 3. Les boutons de navigation
+        navigator.mediaSession.setActionHandler('previoustrack', () => {
+            if(current - 1 >= 0) play(current - 1);
+        });
+
+        navigator.mediaSession.setActionHandler('nexttrack', () => {
+            if(current + 1 < episodes.length) play(current + 1);
+        });
     }
 }
 
@@ -654,12 +658,12 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.log("Erreur SW", err));
 }
 
-// Optionnel : Forcer le réveil du processeur pour l'audio suivant
-const audio = document.getElementById('player');
-audio.addEventListener('play', () => {
-  if ('wakeLock' in navigator) {
-    navigator.wakeLock.request('screen').catch(() => {});
-  }
+    const audioElem = document.getElementById('player');
+audioElem.addEventListener('play', () => {
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
+});
+audioElem.addEventListener('pause', () => {
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
 });
 </script>
     <div id="toast">Lien copié !</div>

@@ -533,22 +533,35 @@ async function loadEpisodes(pid, isEncoded = false) {
         </div>`).join('');
     play(0);
 }
-    
+
 async function play(i) {
     current = i;
     document.querySelectorAll('.list-item-ep').forEach(el => el.classList.remove('current'));
-    document.getElementById(`ep-${i}`)?.classList.add('current');
+    const activeItem = document.getElementById(`ep-${i}`);
+    if (activeItem) activeItem.classList.add('current');
     
-    titleDisplay.innerText = "Plongée en cours : " + episodes[i].title;
+    titleDisplay.innerText = "Plongée en cours...";
 
     const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
     
     if (audioUrl) {
         audio.src = audioUrl;
+        audio.load(); // Force le rechargement du flux
+        
         audio.oncanplay = () => {
             titleDisplay.innerText = episodes[i].title;
-            audio.play();
-            updateMediaSession(episodes[i].title);
+            
+            // On joue d'abord...
+            audio.play().then(() => {
+                // ...et on attend 200ms avant de déclarer la MediaSession
+                // C'est souvent ce délai qui débloque Firefox Mobile
+                setTimeout(() => {
+                    updateMediaSession(episodes[i].title);
+                    if ('mediaSession' in navigator) {
+                        navigator.mediaSession.playbackState = "playing";
+                    }
+                }, 200);
+            }).catch(e => console.log("Erreur lecture:", e));
         };
     }
 }
@@ -559,15 +572,29 @@ function updateMediaSession(title) {
             title: title,
             artist: "Baleine sous gravillon",
             album: "Le podcast du Vivant",
-            artwork: [{ src: 'https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png', sizes: '270x270', type: 'image/png' }]
+            artwork: [
+                { src: 'https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png', sizes: '270x270', type: 'image/png' },
+                { src: 'https://image.ausha.co/CQMRa8hZ950ZAamQlgLxjsA38VuxGAXyvYCZXFXK_400x400.jpeg', sizes: '400x400', type: 'image/jpeg' }
+            ]
         });
 
-        navigator.mediaSession.setActionHandler('play', () => audio.play());
-        navigator.mediaSession.setActionHandler('pause', () => audio.pause());
-        
-        // Firefox a besoin que ces handlers soient ré-attachés
-        navigator.mediaSession.setActionHandler('previoustrack', current > 0 ? () => play(current - 1) : null);
-        navigator.mediaSession.setActionHandler('nexttrack', current + 1 < episodes.length ? () => play(current + 1) : null);
+        // Forcer les handlers à chaque mise à jour
+        const actions = [
+            ['play', () => audio.play()],
+            ['pause', () => audio.pause()],
+            ['previoustrack', current > 0 ? () => play(current - 1) : null],
+            ['nexttrack', current + 1 < episodes.length ? () => play(current + 1) : null],
+            ['seekbackward', (details) => { audio.currentTime -= (details.seekOffset || 10); }],
+            ['seekforward', (details) => { audio.currentTime += (details.seekOffset || 10); }]
+        ];
+
+        for (const [action, handler] of actions) {
+            try {
+                navigator.mediaSession.setActionHandler(action, handler);
+            } catch (error) {
+                console.log(`L'action "${action}" n'est pas supportée.`);
+            }
+        }
     }
 }
 

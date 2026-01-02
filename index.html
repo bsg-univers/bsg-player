@@ -534,50 +534,52 @@ async function loadEpisodes(pid, isEncoded = false) {
 }
 
 async function play(i) {
+    // 1. Mise à jour de l'index et de l'interface visuelle
     current = i;
-
-    // 1. Mise à jour visuelle immédiate de la liste
     document.querySelectorAll('.list-item-ep').forEach(el => el.classList.remove('current'));
     const activeItem = document.getElementById(`ep-${i}`);
     if (activeItem) activeItem.classList.add('current');
     
-    // 2. Information immédiate pour l'utilisateur
-    titleDisplay.innerText = "Plongée en cours...";
+    // 2. Affichage immédiat du titre (évite que le message "Cliquez sur Play" reste affiché)
+    if (episodes[i]) {
+        titleDisplay.innerText = episodes[i].title;
+    } else {
+        titleDisplay.innerText = "Plongée en cours...";
+    }
 
-    // 3. Forcer l'état MediaSession au début pour éviter que le mobile ne coupe le processus
+    // 3. Pré-activation de la MediaSession pour le mode verrouillé
     if ('mediaSession' in navigator) {
         navigator.mediaSession.playbackState = "playing";
     }
 
-    // 4. Appel à votre API pour récupérer l'URL audio
     try {
+        // 4. Récupération de l'URL audio via l'API
         const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
         
         if (audioUrl) {
             audio.src = audioUrl;
-            audio.load(); // Indispensable pour les flux dynamiques
+            audio.load(); 
             
+            // 5. Une fois le flux prêt à être lu
             audio.oncanplay = () => {
+                // On s'assure que le titre est bien le bon
                 titleDisplay.innerText = episodes[i].title;
                 
-                // 5. Lancer la lecture
                 audio.play().then(() => {
-                    // Délai de 200ms pour s'assurer que le flux est stable avant d'envoyer les métadonnées
+                    // Petite attente pour stabiliser les métadonnées sur le lockscreen
                     setTimeout(() => {
                         updateMediaSession(episodes[i].title);
-                        if ('mediaSession' in navigator) {
-                            navigator.mediaSession.playbackState = "playing";
-                        }
-                    }, 200);
+                    }, 300);
                 }).catch(e => {
-                    console.log("Erreur lecture (souvent liée au blocage navigateur):", e);
+                    console.log("Autoplay bloqué ou erreur:", e);
+                    // Si l'autoplay est bloqué, on affiche l'invitation à cliquer
                     titleDisplay.innerText = "Cliquez sur Play ▶ pour commencer la lecture !";
                 });
             };
         }
     } catch (error) {
-        console.error("Erreur lors de la récupération de l'épisode:", error);
-        titleDisplay.innerText = "Erreur de connexion...";
+        console.error("Erreur API:", error);
+        titleDisplay.innerText = "Erreur de connexion au flux...";
     }
 }
 
@@ -615,19 +617,18 @@ function updateMediaSession(title) {
 
 // --- GESTIONNAIRES D'ÉVÉNEMENTS ---
 
-// 1. Débloque l'audio pour le mode PWA/Mobile dès le premier clic
+// 1. Débloque l'audio (Hack Mobile)
 document.addEventListener('click', () => {
     if (audio.paused && !audio.src) {
-        // Un micro-play/pause suffit à dire au navigateur : "L'utilisateur autorise le son"
         audio.play().then(() => audio.pause()).catch(() => {});
     }
 }, { once: true });
 
-// 2. Met à jour l'affichage sur l'écran de verrouillage
-audio.addEventListener('play', () => {
-    // REMPLACEMENT ICI : On remet le titre de l'épisode au démarrage du son
-    if (episodes[current]) {
-        titleDisplay.innerText = episodes[current].title;
+// 2. Met à jour l'affichage et l'état
+audio.addEventListener('playing', () => {
+    // On ne change le titre ici que s'il contient le message d'attente/erreur
+    if (titleDisplay.innerText.includes("Cliquez") || titleDisplay.innerText === "Plongée en cours...") {
+        if (episodes[current]) titleDisplay.innerText = episodes[current].title;
     }
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
 });
@@ -636,11 +637,13 @@ audio.addEventListener('pause', () => {
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
 });
 
-// 3. ENCHAÎNEMENT AUTOMATIQUE (Le cœur du problème)
+// 3. ENCHAÎNEMENT AUTOMATIQUE (Crucial pour écran verrouillé)
 audio.addEventListener('ended', () => {
-    console.log("Passage au suivant...");
     if (current + 1 < episodes.length) {
-        play(current + 1);
+        // Un petit délai de 500ms aide la MediaSession mobile à ne pas "paniquer"
+        setTimeout(() => {
+            play(current + 1);
+        }, 500);
     }
 });
 

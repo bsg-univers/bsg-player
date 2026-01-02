@@ -1,414 +1,414 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <link rel="icon" type="image/png" href="https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png">
-    <link rel="apple-touch-icon" href="https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="icon" type="image/png" href="https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png">
+    <link rel="apple-touch-icon" href="https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png">
 
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#0b0e14">
-    <title>Baleine sous gravillon – Les podcasts</title>
-    <meta name="title" content="Baleine sous gravillon — Les podcasts du Vivant">
-    <meta name="description" content="Plongez dans les profondeurs du vivant avec notre lecteur de playlists dédié.">
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0b0e14">
+    <title>Baleine sous gravillon – Les podcasts</title>
+    <meta name="title" content="Baleine sous gravillon — Les podcasts du Vivant">
+    <meta name="description" content="Plongez dans les profondeurs du vivant avec notre lecteur de playlists dédié.">
 
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://bsg-univers.github.io/bsg-player/">
-    <meta property="og:title" content="Baleine sous gravillon — Les podcasts du Vivant">
-    <meta property="og:description" content="Écoutez nos épisodes et playlists thématiques. Une immersion sonore unique.">
-    <meta property="og:image" content="https://baleinesousgravillon.com/wp-content/uploads/2022/05/Banniere_fb_orditel_FG_8-scaled.jpg">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bsg-univers.github.io/bsg-player/">
+    <meta property="og:title" content="Baleine sous gravillon — Les podcasts du Vivant">
+    <meta property="og:description" content="Écoutez nos épisodes et playlists thématiques. Une immersion sonore unique.">
+    <meta property="og:image" content="https://baleinesousgravillon.com/wp-content/uploads/2022/05/Banniere_fb_orditel_FG_8-scaled.jpg">
 
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:title" content="Baleine sous gravillon — Les podcasts">
-    <meta property="twitter:description" content="Plongez dans les profondeurs du Vivant.">
-    <meta property="twitter:image" content="https://baleinesousgravillon.com/wp-content/uploads/2022/05/Banniere_fb_orditel_FG_8-scaled.jpg">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Baleine sous gravillon — Les podcasts">
+    <meta property="twitter:description" content="Plongez dans les profondeurs du Vivant.">
+    <meta property="twitter:image" content="https://baleinesousgravillon.com/wp-content/uploads/2022/05/Banniere_fb_orditel_FG_8-scaled.jpg">
 
-    <style>
+    <style>
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 :root{
-  --primary:#f3c300;
+  --primary:#f3c300;
 
-  --black-void:#050608;
-  --blue-abyss:#031b28;
-  --green-abyss:#04251e;
+  --black-void:#050608;
+  --blue-abyss:#031b28;
+  --green-abyss:#04251e;
 
-  --glass-soft:rgba(255,255,255,0.04);
-  --glass-strong:rgba(255,255,255,0.08);
+  --glass-soft:rgba(255,255,255,0.04);
+  --glass-strong:rgba(255,255,255,0.08);
 }
 
 body::before{
-  content:"";
-  position:fixed;
-  top:-1px;  /* Décalage anti-aliasing */
-  left:-1px; /* Décalage anti-aliasing */
-  right:0;
-  bottom:0;
-  pointer-events:none;
-  z-index:-1;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  content:"";
+  position:fixed;
+  top:-1px;  /* Décalage anti-aliasing */
+  left:-1px; /* Décalage anti-aliasing */
+  right:0;
+  bottom:0;
+  pointer-events:none;
+  z-index:-1;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
 }
 
 
 /* ===================== */
-/*      FOND GLOBAL      */
+/*      FOND GLOBAL      */
 /* ===================== */
 
 html, body{
-  min-height:100%;
+  min-height:100%;
 }
 
 body{
-  font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
-  font-size:1.1rem;
-  color:#eaeaea;
-  margin:0;
-  padding-bottom:160px;
+  font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  font-size:1.1rem;
+  color:#eaeaea;
+  margin:0;
+  padding-bottom:160px;
 
-  min-height:100vh;
+  min-height:100vh;
 
-  background-color:#0b0e14;
-  background-image:
-    radial-gradient(circle at 20% 30%, rgba(70,130,180,0.28) 0%, transparent 60%),
-    radial-gradient(circle at 80% 70%, rgba(0,120,90,0.18) 0%, transparent 65%),
-    radial-gradient(circle at 50% 50%, rgba(0,40,60,0.22) 0%, transparent 70%);
+  background-color:#0b0e14;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(70,130,180,0.28) 0%, transparent 60%),
+    radial-gradient(circle at 80% 70%, rgba(0,120,90,0.18) 0%, transparent 65%),
+    radial-gradient(circle at 50% 50%, rgba(0,40,60,0.22) 0%, transparent 70%);
 
-  background-repeat:no-repeat;
-  background-size:cover;
-  background-position:center center;
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center center;
 }
 
 /* ===================== */
-/*        HEADER         */
+/*        HEADER         */
 /* ===================== */
 /* Réinitialisation globale */
 
 header {
-  position: relative; /* Priorité d'affichage */
-  z-index: 10;        /* Priorité d'affichage */
-  width: 100%;
-  text-align: center;
-  padding: 32px 20px;
-  background: linear-gradient(to bottom, 
-    rgba(0,0,0,0.85) 0%, 
-    rgba(0,0,0,0.85) 5%, 
-    rgba(0,0,0,0.55) 90%);
-  box-shadow: 0 5px 90px rgba(0,0,0,0.8);
+  position: relative; /* Priorité d'affichage */
+  z-index: 10;        /* Priorité d'affichage */
+  width: 100%;
+  text-align: center;
+  padding: 32px 20px;
+  background: linear-gradient(to bottom, 
+    rgba(0,0,0,0.85) 0%, 
+    rgba(0,0,0,0.85) 5%, 
+    rgba(0,0,0,0.55) 90%);
+  box-shadow: 0 5px 90px rgba(0,0,0,0.8);
 }
 
 .logo-main{
-  max-width:200px;
-  margin-bottom:16px;
-  filter:
-    drop-shadow(0 0 14px rgba(243,195,0,0.25))
-    drop-shadow(0 0 40px rgba(243,195,0,0.08));
+  max-width:200px;
+  margin-bottom:16px;
+  filter:
+    drop-shadow(0 0 14px rgba(243,195,0,0.25))
+    drop-shadow(0 0 40px rgba(243,195,0,0.08));
 }
 
 /* lien image */
 .site-image-link{
-  display:inline-block;
-  margin-right:7px;
-  width:58px;
-  height:58px;
-  border-radius:5px;
-  overflow:hidden;
-  background:#000;
-  box-shadow:
-    0 0 0 1px rgba(243,195,0,0.15),
-    0 15px 35px rgba(0,0,0,0.8);
-  transition:transform .35s ease, box-shadow .35s ease;
+  display:inline-block;
+  margin-right:7px;
+  width:58px;
+  height:58px;
+  border-radius:5px;
+  overflow:hidden;
+  background:#000;
+  box-shadow:
+    0 0 0 1px rgba(243,195,0,0.15),
+    0 15px 35px rgba(0,0,0,0.8);
+  transition:transform .35s ease, box-shadow .35s ease;
 }
 
 .site-image-link:hover{
-  transform:translateY(-4px) scale(1.06);
-  box-shadow:
-    0 0 0 1px rgba(243,195,0,0.35),
-    0 20px 45px rgba(0,0,0,0.9);
+  transform:translateY(-4px) scale(1.06);
+  box-shadow:
+    0 0 0 1px rgba(243,195,0,0.35),
+    0 20px 45px rgba(0,0,0,0.9);
 }
 
 .site-image-link img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
 /* ===================== */
-/*       CONTENU         */
+/*       CONTENU         */
 /* ===================== */
 .container{
-  max-width:820px;
-  margin:auto;
-  padding:28px 20px;
+  max-width:820px;
+  margin:auto;
+  padding:28px 20px;
 }
 
 h2,h3{
-  color:var(--primary);
-  font-size:1rem;
-  letter-spacing:1px;
-  text-transform:uppercase;
-  margin:32px 0 18px;
-  padding-left:14px;
-  border-left:3px solid var(--primary);
-  text-shadow:0 0 10px rgba(243,195,0,0.15);
+  color:var(--primary);
+  font-size:1rem;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin:32px 0 18px;
+  padding-left:14px;
+  border-left:3px solid var(--primary);
+  text-shadow:0 0 10px rgba(243,195,0,0.15);
 }
 
 /* ===================== */
-/* SAISONS RELOADED    */
+/* SAISONS RELOADED    */
 /* ===================== */
 .grid-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 20px;
-  perspective: 1000px; /* Pour un effet de profondeur */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 20px;
+  perspective: 1000px; /* Pour un effet de profondeur */
 }
 
 .season-item {
-  position: relative;
-  padding: 20px 15px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: rgba(255,255,255,0.9);
-  text-align: center;
-  cursor: pointer;
-  z-index: 1;
-  overflow: hidden;
+  position: relative;
+  padding: 20px 15px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.9);
+  text-align: center;
+  cursor: pointer;
+  z-index: 1;
+  overflow: hidden;
 
-    /* Supprime le rectangle bleu sur mobile */
-  -webkit-tap-highlight-color: transparent;
-  
-  /* Supprime le contour de sélection au focus (clavier/accessibilité) */
-  outline: none;
-    
-  /* Forme "Galet" irrégulière */
-  border-radius: 60% 40% 70% 30% / 40% 50% 60% 40%;
-  
-  /* Look Abyss Glass */
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(243, 195, 0, 0.2);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  
-  /* Ombre douce et lueur interne */
-  box-shadow: 
-    0 10px 20px rgba(0,0,0,0.3),
-    inset 0 0 15px rgba(243, 195, 0, 0.05);
+    /* Supprime le rectangle bleu sur mobile */
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Supprime le contour de sélection au focus (clavier/accessibilité) */
+  outline: none;
+    
+  /* Forme "Galet" irrégulière */
+  border-radius: 60% 40% 70% 30% / 40% 50% 60% 40%;
+  
+  /* Look Abyss Glass */
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(243, 195, 0, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  
+  /* Ombre douce et lueur interne */
+  box-shadow: 
+    0 10px 20px rgba(0,0,0,0.3),
+    inset 0 0 15px rgba(243, 195, 0, 0.05);
 
-  /* Animation de flottaison */
-  animation: float 6s ease-in-out infinite;
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  /* Animation de flottaison */
+  animation: float 6s ease-in-out infinite;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* On décale l'animation pour chaque bouton pour un effet naturel */
 .season-item:nth-child(even) {
-  animation-duration: 7s;
-  border-radius: 40% 60% 35% 65% / 50% 40% 60% 50%;
+  animation-duration: 7s;
+  border-radius: 40% 60% 35% 65% / 50% 40% 60% 50%;
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-10px) rotate(2deg); }
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
 }
 
 .season-item:hover {
-  background: var(--primary);
-  color: #0b0e14;
-  transform: scale(1.1) rotate(-2deg);
-  border-color: var(--primary);
-  box-shadow: 0 15px 30px rgba(243, 195, 0, 0.3);
-  animation-play-state: paused; /* S'arrête quand on le survole */
+  background: var(--primary);
+  color: #0b0e14;
+  transform: scale(1.1) rotate(-2deg);
+  border-color: var(--primary);
+  box-shadow: 0 15px 30px rgba(243, 195, 0, 0.3);
+  animation-play-state: paused; /* S'arrête quand on le survole */
 }
 
 .season-item:hover::after {
-  left: 120%;
+  left: 120%;
 }
 
 .season-item:active {
-  transform: scale(0.95);
+  transform: scale(0.95);
 }
 
 /* ===================== */
-/*      ÉPISODES         */
+/*      ÉPISODES         */
 /* ===================== */
 .episode-item{
-  margin-bottom:10px;
-  padding:16px 20px;
-  border-radius:16px;
+  margin-bottom:10px;
+  padding:16px 20px;
+  border-radius:16px;
 
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 
-  cursor:pointer;
-  border-left:0 solid var(--primary);
-  transition:all .25s ease;
-        /* Supprime le rectangle bleu sur mobile */
-  -webkit-tap-highlight-color: transparent;
-  
-  /* Supprime le contour de sélection au focus (clavier/accessibilité) */
-  outline: none;
+  cursor:pointer;
+  border-left:0 solid var(--primary);
+  transition:all .25s ease;
+        /* Supprime le rectangle bleu sur mobile */
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Supprime le contour de sélection au focus (clavier/accessibilité) */
+  outline: none;
 }
 
 .episode-item:hover{
-  background:
-    linear-gradient(160deg,
-      rgba(255,255,255,0.08),
-      rgba(255,255,255,0.02));
+  background:
+    linear-gradient(160deg,
+      rgba(255,255,255,0.08),
+      rgba(255,255,255,0.02));
 }
 
 .episode-item.current{
-  border-left:6px solid var(--primary);
+  border-left:6px solid var(--primary);
 
-  box-shadow:
-    0 5px 15px rgba(0,0,0,0.35);
+  box-shadow:
+    0 5px 15px rgba(0,0,0,0.35);
 }
 
 .episode-title{
-  flex-grow:1;
-  margin-right:14px;
-  font-size:1rem;;
+  flex-grow:1;
+  margin-right:14px;
+  font-size:1rem;;
 }
 
 /* bouton partage */
 /* bouton partage */
 .btn-share {
-  flex-shrink: 0; /* Empeche le cercle de s'écraser */
-  background: transparent;
-  border: 1px solid rgba(243,195,0,0.6);
-  color: var(--primary);
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all .3s ease;
-  animation: pulse-border 12s infinite ease-in-out;
-      /* Supprime le rectangle bleu sur mobile */
-  -webkit-tap-highlight-color: transparent;
-  
-  /* Supprime le contour de sélection au focus (clavier/accessibilité) */
-  outline: none;
+  flex-shrink: 0; /* Empeche le cercle de s'écraser */
+  background: transparent;
+  border: 1px solid rgba(243,195,0,0.6);
+  color: var(--primary);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .3s ease;
+  animation: pulse-border 12s infinite ease-in-out;
+      /* Supprime le rectangle bleu sur mobile */
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Supprime le contour de sélection au focus (clavier/accessibilité) */
+  outline: none;
 }
 
 @keyframes pulse-border {
-  0%, 100% { border-color: rgba(243, 195, 0, 0.3); box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
-  50% { border-color: rgba(243, 195, 0, 0.8); box-shadow: 0 0 15px rgba(243, 195, 0, 0.4); }
+  0%, 100% { border-color: rgba(243, 195, 0, 0.3); box-shadow: 0 8px 20px rgba(0,0,0,0.6); }
+  50% { border-color: rgba(243, 195, 0, 0.8); box-shadow: 0 0 15px rgba(243, 195, 0, 0.4); }
 }
 
 .btn-share:hover{
-  background:var(--primary);
-  color:#111;
+  background:var(--primary);
+  color:#111;
 }
 
 /* ===================== */
-/* PLAYER UNIFIÉ      */
+/* PLAYER UNIFIÉ      */
 /* ===================== */
 .player-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
 
-    /* Effet Abyss Glass cohérent */
-    background: rgba(11, 14, 20, 0.95);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    /* Effet Abyss Glass cohérent */
+    background: rgba(11, 14, 20, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
 
-    /* Forme "Galet" uniquement sur le haut pour rester collé en bas */
-    /* On crée une ondulation organique sur la bordure supérieure */
-    border-radius: 70px 70px 0 0 / 25px 25px 0 0;
-    
-    padding: 20px 30px 25px;
-    
-    /* Bordure dorée fine comme les boutons */
-    border-top: 1px solid rgba(243, 195, 0, 0.3);
-    
-    /* Lueur interne et ombre profonde */
-    box-shadow: 
-        0 -15px 40px rgba(0,0,0,0.8),
-        inset 0 2px 15px rgba(243, 195, 0, 0.1);
-    
-    z-index: 1000;
-    
-    /* Animation très subtile pour rappeler la flottaison des boutons */
-    animation: playerSubtleWave 10s ease-in-out infinite;
+    /* Forme "Galet" uniquement sur le haut pour rester collé en bas */
+    /* On crée une ondulation organique sur la bordure supérieure */
+    border-radius: 70px 70px 0 0 / 25px 25px 0 0;
+    
+    padding: 20px 30px 25px;
+    
+    /* Bordure dorée fine comme les boutons */
+    border-top: 1px solid rgba(243, 195, 0, 0.3);
+    
+    /* Lueur interne et ombre profonde */
+    box-shadow: 
+        0 -15px 40px rgba(0,0,0,0.8),
+        inset 0 2px 15px rgba(243, 195, 0, 0.1);
+    
+    z-index: 1000;
+    
+    /* Animation très subtile pour rappeler la flottaison des boutons */
+    animation: playerSubtleWave 10s ease-in-out infinite;
 }
 
 @keyframes playerSubtleWave {
-    0%, 100% { border-top-color: rgba(243, 195, 0, 0.3); }
-    50% { border-top-color: rgba(243, 195, 0, 0.6); }
+    0%, 100% { border-top-color: rgba(243, 195, 0, 0.3); }
+    50% { border-top-color: rgba(243, 195, 0, 0.6); }
 }
 
 .now-playing {
-    text-align: center;
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 14px;
-    text-shadow: 0 0 15px rgba(243, 195, 0, 0.4);
-    /* Pour éviter que le titre ne casse la forme */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 14px;
+    text-shadow: 0 0 15px rgba(243, 195, 0, 0.4);
+    /* Pour éviter que le titre ne casse la forme */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 audio {
-    width: 100%;
-    height: 40px;
-    border-radius: 50px; /* Style pilule pour le lecteur */
-    /* Filtre pour rendre le lecteur natif plus élégant sur fond noir */
-    filter: invert(100%) hue-rotate(180deg) brightness(1.5) contrast(0.8);
-    opacity: 0.9;
+    width: 100%;
+    height: 40px;
+    border-radius: 50px; /* Style pilule pour le lecteur */
+    /* Filtre pour rendre le lecteur natif plus élégant sur fond noir */
+    filter: invert(100%) hue-rotate(180deg) brightness(1.5) contrast(0.8);
+    opacity: 0.9;
 }
 
 /* ===================== */
-/*       TOAST           */
+/*       TOAST           */
 /* ===================== */
 #toast{
-  opacity:0;
-  pointer-events:none;
+  opacity:0;
+  pointer-events:none;
 
-  min-width:200px;
-  background:var(--primary);
-  color:#111;
-  text-align:center;
-  border-radius:30px;
-  padding:12px 18px;
+  min-width:200px;
+  background:var(--primary);
+  color:#111;
+  text-align:center;
+  border-radius:30px;
+  padding:12px 18px;
 
-  position:fixed;
-  left:50%;
-  bottom:120px;
-  transform:translate(-50%, 12px);
+  position:fixed;
+  left:50%;
+  bottom:120px;
+  transform:translate(-50%, 12px);
 
-  font-weight:700;
-  font-size:.8em;
+  font-weight:700;
+  font-size:.8em;
 
-  box-shadow:0 10px 30px rgba(0,0,0,0.8);
+  box-shadow:0 10px 30px rgba(0,0,0,0.8);
 
-  transition:
-    opacity .35s ease,
-    transform .35s ease;
+  transition:
+    opacity .35s ease,
+    transform .35s ease;
 }
 
 #toast.show{
-  opacity:1;
-  transform:translate(-50%, 0);
+  opacity:1;
+  transform:translate(-50%, 0);
 }
 
 
 .loader{
-  text-align:center;
-  color:var(--primary);
-  padding:24px;
-  font-style:italic;
+  text-align:center;
+  color:var(--primary);
+  padding:24px;
+  font-style:italic;
 }
 </style>
 </head>
@@ -416,30 +416,30 @@ audio {
 
 <header>
 <a href="https://baleinesousgravillon.com/" target="_blank" title="Aller sur le site officiel">
-    <img src="https://baleinesousgravillon.com/wp-content/uploads/2023/08/logo-accueil3Plan-de-travail-2-copie-3@2x-1.png" alt="Logo" class="logo-main"><br>
+    <img src="https://baleinesousgravillon.com/wp-content/uploads/2023/08/logo-accueil3Plan-de-travail-2-copie-3@2x-1.png" alt="Logo" class="logo-main"><br>
 </a>
 <a href="https://baleinesousgravillon.com/" target="_blank" class="site-image-link" title="Aller sur le site officiel">
-    <img src="https://image.ausha.co/CQMRa8hZ950ZAamQlgLxjsA38VuxGAXyvYCZXFXK_400x400.jpeg" alt="Lien Site">
+    <img src="https://image.ausha.co/CQMRa8hZ950ZAamQlgLxjsA38VuxGAXyvYCZXFXK_400x400.jpeg" alt="Lien Site">
 </a>
 <a href="https://baleinesousgravillon.com/" target="_blank" class="site-image-link" title="Aller sur le site officiel">
-    <img src="https://image.ausha.co/A7P2IR07j1IuiB6cAAY9LjKIEcrbr4dPsgqobQHP_400x400.jpeg" alt="Lien Site">
+    <img src="https://image.ausha.co/A7P2IR07j1IuiB6cAAY9LjKIEcrbr4dPsgqobQHP_400x400.jpeg" alt="Lien Site">
 </a>
 <a href="https://baleinesousgravillon.com/" target="_blank" class="site-image-link" title="Aller sur le site officiel">
-    <img src="https://image.ausha.co/CBnPjfz7mxzBMJg4Fc3OGIHETweeY5jv4GH5JdU0_400x400.jpeg" alt="Lien Site">
+    <img src="https://image.ausha.co/CBnPjfz7mxzBMJg4Fc3OGIHETweeY5jv4GH5JdU0_400x400.jpeg" alt="Lien Site">
 </a>
 <a href="https://baleinesousgravillon.com/" target="_blank" class="site-image-link" title="Aller sur le site officiel">
-    <img src="https://image.ausha.co/0xC11gNAqCw0Flp5qCUhuWM9kJI3p8Lw6J3lLm5w_400x400.jpeg" alt="Lien Site">
+    <img src="https://image.ausha.co/0xC11gNAqCw0Flp5qCUhuWM9kJI3p8Lw6J3lLm5w_400x400.jpeg" alt="Lien Site">
 </a>
 </header>
 
 <div class="container">
-    <div id="seasons_grid" class="grid-list"></div>
-    <div id="episodes_list"></div>
+    <div id="seasons_grid" class="grid-list"></div>
+    <div id="episodes_list"></div>
 </div>
 
 <div class="player-container">
-    <div id="now-playing-title" class="now-playing">Sélectionnez une aventure...</div>
-    <audio id="player" style="border-radius: 15px;" controls playsinline preload="auto"></audio>
+    <div id="now-playing-title" class="now-playing">Sélectionnez une aventure...</div>
+    <audio id="player" style="border-radius: 15px;" controls playsinline preload="auto"></audio>
 </div>
 
 <script>
@@ -453,158 +453,200 @@ const titleDisplay = document.getElementById('now-playing-title');
 
 // --- LOGIQUE API ---
 async function callApi(params) {
-    const url = `${SCRIPT_URL}?${params}`;
-    const response = await fetch(url);
-    return await response.json();
+    const url = `${SCRIPT_URL}?${params}`;
+    const response = await fetch(url);
+    return await response.json();
 }
 
 async function loadPlaylists() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const initialPlaylistId = urlParams.get('playlistId') ? decodeURIComponent(urlParams.get('playlistId').replace(/\+/g, ' ')) : null;
-    
-    allPlaylists = await callApi("action=getPlaylists");
-    allPlaylists = allPlaylists.filter(p => p.public);
-    
-    const seasons = [...new Set(allPlaylists.map(p => p.season))].sort().reverse();
-    const div = document.getElementById('seasons_grid');
-    div.innerHTML = seasons.map(s => `<div class="season-item" onclick="showPlaylistsBySeason('${s}')">${s}</div>`).join('');
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialPlaylistId = urlParams.get('playlistId') ? decodeURIComponent(urlParams.get('playlistId').replace(/\+/g, ' ')) : null;
+    
+    allPlaylists = await callApi("action=getPlaylists");
+    allPlaylists = allPlaylists.filter(p => p.public);
+    
+    const seasons = [...new Set(allPlaylists.map(p => p.season))].sort().reverse();
+    const div = document.getElementById('seasons_grid');
+    div.innerHTML = seasons.map(s => `<div class="season-item" onclick="showPlaylistsBySeason('${s}')">${s}</div>`).join('');
 
-    if (initialPlaylistId) {
-        const sharedPlaylist = allPlaylists.find(p => String(p.id).trim() === initialPlaylistId.trim());
-        if (sharedPlaylist) {
-            showPlaylistsBySeason(sharedPlaylist.season);
-            loadEpisodes(sharedPlaylist.id);
-        } else {
-            showPlaylistsBySeason(seasons[0]);
-        }
-    } else {
-        showPlaylistsBySeason(seasons[0]);
-    }
+    if (initialPlaylistId) {
+        const sharedPlaylist = allPlaylists.find(p => String(p.id).trim() === initialPlaylistId.trim());
+        if (sharedPlaylist) {
+            showPlaylistsBySeason(sharedPlaylist.season);
+            loadEpisodes(sharedPlaylist.id);
+        } else {
+            showPlaylistsBySeason(seasons[0]);
+        }
+    } else {
+        showPlaylistsBySeason(seasons[0]);
+    }
 }
 
 function showPlaylistsBySeason(season) {
-    document.querySelectorAll('.season-item').forEach(btn => {
-        btn.style.borderColor = btn.innerText === season ? "var(--primary)" : "rgba(243, 195, 0, 0.2)";
-        btn.style.background = btn.innerText === season ? "rgba(243, 195, 0, 0.15)" : "rgba(255, 255, 255, 0.03)";
-    });
-    
-    const filtered = allPlaylists.filter(p => p.season === season);
-    const div = document.getElementById('episodes_list');
-    div.innerHTML = `<h2>Playlists — ${season}</h2>` + filtered.map(p => {
-        const encodedId = btoa(unescape(encodeURIComponent(p.id)));
-        return `
-        <div class="episode-item" onclick="loadEpisodes('${encodedId}', true)">
-            <span class="episode-title"><strong>${p.name}</strong></span>
-            <button class="btn-share" onclick="sharePlaylist(event, '${encodedId}')">🔗</button>
-        </div>`;
-    }).join('');
+    document.querySelectorAll('.season-item').forEach(btn => {
+        btn.style.borderColor = btn.innerText === season ? "var(--primary)" : "rgba(243, 195, 0, 0.2)";
+        btn.style.background = btn.innerText === season ? "rgba(243, 195, 0, 0.15)" : "rgba(255, 255, 255, 0.03)";
+    });
+    
+    const filtered = allPlaylists.filter(p => p.season === season);
+    const div = document.getElementById('episodes_list');
+    div.innerHTML = `<h2>Playlists — ${season}</h2>` + filtered.map(p => {
+        const encodedId = btoa(unescape(encodeURIComponent(p.id)));
+        return `
+        <div class="episode-item" onclick="loadEpisodes('${encodedId}', true)">
+            <span class="episode-title"><strong>${p.name}</strong></span>
+            <button class="btn-share" onclick="sharePlaylist(event, '${encodedId}')">🔗</button>
+        </div>`;
+    }).join('');
 }
 
+function sharePlaylist(event, encodedPid) {
+    event.stopPropagation();
+    const pid = decodeURIComponent(escape(atob(encodedPid)));
+    const url = new URL(window.location.origin + window.location.pathname);
+    url.searchParams.set('playlistId', pid);
+    navigator.clipboard.writeText(url.toString()).then(showToast);
+}
+    
+function showToast() {
+    const toast = document.getElementById("toast");
+    toast.className = "show";
+    setTimeout(() => { toast.className = ""; }, 3000);
+}
+    
 async function loadEpisodes(pid, isEncoded = false) {
-    const cleanId = isEncoded ? decodeURIComponent(escape(atob(pid))) : pid;
-    const listDiv = document.getElementById('episodes_list');
-    listDiv.innerHTML = '<div class="loader">Plongée...</div>';
-    
-    const data = await callApi(`action=getEpisodes&playlistId=${encodeURIComponent(cleanId)}`);
-    episodes = data;
-    
-    if (!episodes || episodes.length === 0) {
-        listDiv.innerHTML = '<p>Aucun épisode trouvé.</p>';
-        return;
-    }
+    const cleanId = isEncoded ? decodeURIComponent(escape(atob(pid))) : pid;
+    const listDiv = document.getElementById('episodes_list');
+    listDiv.innerHTML = '<div class="loader">Plongée...</div>';
+    episodes = await callApi(`action=getEpisodes&playlistId=${encodeURIComponent(cleanId)}`);
+    
+    if (!episodes || episodes.length === 0) {
+        listDiv.innerHTML = '<p>Aucun épisode trouvé.</p>';
+        return;
+    }
 
-    listDiv.innerHTML = `<h3>Épisodes</h3>` + episodes.map((e, i) => `
-        <div class="episode-item list-item-ep" id="ep-${i}" onclick="play(${i})">
-            <span class="episode-title">${e.title}</span>
-            <span style="color:var(--primary); font-size: 0.8em;">▶</span>
-        </div>`).join('');
-    
-    // On ne lance pas play(0) automatiquement pour éviter de bloquer le navigateur mobile
-    // L'utilisateur doit cliquer sur un épisode.
+    listDiv.innerHTML = `<h3>Épisodes</h3>` + episodes.map((e, i) => `
+        <div class="episode-item list-item-ep" id="ep-${i}" onclick="play(${i})">
+            <span class="episode-title">${e.title}</span>
+            <span style="color:var(--primary); font-size: 0.8em;">▶</span>
+        </div>`).join('');
+    play(0);
 }
 
 async function play(i) {
-    if (!episodes[i]) return;
     current = i;
 
-    // Interface
+    // 1. Mise à jour visuelle immédiate de la liste
     document.querySelectorAll('.list-item-ep').forEach(el => el.classList.remove('current'));
     const activeItem = document.getElementById(`ep-${i}`);
     if (activeItem) activeItem.classList.add('current');
     
-    titleDisplay.innerText = "Chargement : " + episodes[i].title;
+    // 2. Information immédiate pour l'utilisateur
+    titleDisplay.innerText = "Plongée en cours...";
 
+    // 3. Forcer l'état MediaSession au début pour éviter que le mobile ne coupe le processus
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = "playing";
+    }
+
+    // 4. Appel à votre API pour récupérer l'URL audio
     try {
-        // RÉCUPÉRATION DE L'URL
         const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
         
         if (audioUrl) {
             audio.src = audioUrl;
-            // Crucial : on informe le système qu'on va jouer
-            if ('mediaSession' in navigator) {
-                updateMediaSession(episodes[i].title);
-                navigator.mediaSession.playbackState = "playing";
-            }
+            audio.load(); // Indispensable pour les flux dynamiques
             
-            audio.play().catch(e => {
-                console.error("Erreur lecture:", e);
-                titleDisplay.innerText = "Cliquez sur Play pour écouter";
-            });
+            audio.oncanplay = () => {
+                titleDisplay.innerText = episodes[i].title;
+                
+                // 5. Lancer la lecture
+                audio.play().then(() => {
+                    // Délai de 200ms pour s'assurer que le flux est stable avant d'envoyer les métadonnées
+                    setTimeout(() => {
+                        updateMediaSession(episodes[i].title);
+                        if ('mediaSession' in navigator) {
+                            navigator.mediaSession.playbackState = "playing";
+                        }
+                    }, 200);
+                }).catch(e => {
+                    console.log("Erreur lecture (souvent liée au blocage navigateur):", e);
+                    titleDisplay.innerText = "Cliquez sur Play ▶ pour commencer la lecture.";
+                });
+            };
         }
-    } catch (e) {
-        titleDisplay.innerText = "Erreur de connexion";
+    } catch (error) {
+        console.error("Erreur lors de la récupération de l'épisode:", error);
+        titleDisplay.innerText = "Erreur de connexion...";
     }
 }
 
 function updateMediaSession(title) {
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: title,
-            artist: "Baleine sous gravillon",
-            album: "Le podcast du Vivant",
-            artwork: [
-                { src: 'https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png', sizes: '270x270', type: 'image/png' }
-            ]
-        });
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: title,
+            artist: "Baleine sous gravillon",
+            album: "Le podcast du Vivant",
+            artwork: [
+                { src: 'https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png', sizes: '270x270', type: 'image/png' },
+                { src: 'https://image.ausha.co/CQMRa8hZ950ZAamQlgLxjsA38VuxGAXyvYCZXFXK_400x400.jpeg', sizes: '400x400', type: 'image/jpeg' }
+            ]
+        });
 
-        navigator.mediaSession.setActionHandler('play', () => audio.play());
-        navigator.mediaSession.setActionHandler('pause', () => audio.pause());
-        navigator.mediaSession.setActionHandler('previoustrack', () => { if(current > 0) play(current - 1); });
-        navigator.mediaSession.setActionHandler('nexttrack', () => { if(current < episodes.length - 1) play(current + 1); });
-    }
+        // Forcer les handlers à chaque mise à jour
+        const actions = [
+            ['play', () => audio.play()],
+            ['pause', () => audio.pause()],
+            ['previoustrack', current > 0 ? () => play(current - 1) : null],
+            ['nexttrack', current + 1 < episodes.length ? () => play(current + 1) : null],
+            ['seekbackward', (details) => { audio.currentTime -= (details.seekOffset || 10); }],
+            ['seekforward', (details) => { audio.currentTime += (details.seekOffset || 10); }]
+        ];
+
+        for (const [action, handler] of actions) {
+            try {
+                navigator.mediaSession.setActionHandler(action, handler);
+            } catch (error) {
+                console.log(`L'action "${action}" n'est pas supportée.`);
+            }
+        }
+    }
 }
 
-// --- GESTIONNAIRES ÉVÉNEMENTS ---
+// --- GESTIONNAIRES D'ÉVÉNEMENTS ---
 
-audio.addEventListener('playing', () => {
-    titleDisplay.innerText = episodes[current].title;
+// 1. Débloque l'audio pour le mode PWA/Mobile dès le premier clic
+document.addEventListener('click', () => {
+    if (audio.paused && !audio.src) {
+        // Un micro-play/pause suffit à dire au navigateur : "L'utilisateur autorise le son"
+        audio.play().then(() => audio.pause()).catch(() => {});
+    }
+}, { once: true });
+
+// 2. Met à jour l'affichage sur l'écran de verrouillage
+audio.addEventListener('play', () => {
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
 });
 
-// LE COEUR DE LA RÉPARATION :
-audio.addEventListener('ended', async () => {
+audio.addEventListener('pause', () => {
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
+});
+
+// 3. ENCHAÎNEMENT AUTOMATIQUE (Le cœur du problème)
+audio.addEventListener('ended', () => {
+    console.log("Épisode terminé, tentative de passage au suivant...");
     if (current + 1 < episodes.length) {
-        // Sur mobile verrouillé, on n'a pas le droit d'attendre l'API longtemps
-        // On lance immédiatement la fonction play pour le suivant
         play(current + 1);
     }
 });
 
-// Initialisation
+// --- INITIALISATION ---
 loadPlaylists();
 
-// Partage
-function sharePlaylist(event, encodedPid) {
-    event.stopPropagation();
-    const pid = decodeURIComponent(escape(atob(encodedPid)));
-    const url = new URL(window.location.origin + window.location.pathname);
-    url.searchParams.set('playlistId', pid);
-    navigator.clipboard.writeText(url.toString()).then(() => {
-        const toast = document.getElementById("toast");
-        toast.className = "show";
-        setTimeout(() => { toast.className = ""; }, 3000);
-    });
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log("Erreur SW", err));
 }
 </script>
-    <div id="toast">Lien copié !</div>
+    <div id="toast">Lien copié !</div>
 </body>
 </html>

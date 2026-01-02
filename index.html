@@ -571,7 +571,7 @@ async function play(i) {
                     }, 200);
                 }).catch(e => {
                     console.log("Erreur lecture (souvent liée au blocage navigateur):", e);
-                    titleDisplay.innerText = "Cliquez sur Play ▶ pour commencer la lecture)";
+                    titleDisplay.innerText = "Cliquez sur Play ▶ pour commencer la lecture !";
                 });
             };
         }
@@ -625,6 +625,10 @@ document.addEventListener('click', () => {
 
 // 2. Met à jour l'affichage sur l'écran de verrouillage
 audio.addEventListener('play', () => {
+    // REMPLACEMENT ICI : On remet le titre de l'épisode au démarrage du son
+    if (episodes[current]) {
+        titleDisplay.innerText = episodes[current].title;
+    }
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
 });
 

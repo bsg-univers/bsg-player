@@ -448,173 +448,184 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwm-8iBh2aMDepvxSHpl
 let episodes = [];
 let current = 0;
 let allPlaylists = [];
+
 const audio = document.getElementById('player');
 const titleDisplay = document.getElementById('now-playing-title');
 
-// --- LOGIQUE API ---
+// --- MEDIA SESSION : handlers déclarés UNE SEULE FOIS ---
+if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', () => audio.play());
+    navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+        if (current > 0) play(current - 1);
+    });
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+        if (current + 1 < episodes.length) play(current + 1);
+    });
+    navigator.mediaSession.setActionHandler('seekbackward', (d) => {
+        audio.currentTime -= (d.seekOffset || 10);
+    });
+    navigator.mediaSession.setActionHandler('seekforward', (d) => {
+        audio.currentTime += (d.seekOffset || 10);
+    });
+}
+
+// --- API ---
 async function callApi(params) {
-    const url = `${SCRIPT_URL}?${params}`;
-    const response = await fetch(url);
+    const response = await fetch(`${SCRIPT_URL}?${params}`);
     return await response.json();
 }
 
+// --- PLAYLISTS ---
 async function loadPlaylists() {
     const urlParams = new URLSearchParams(window.location.search);
-    const initialPlaylistId = urlParams.get('playlistId') ? decodeURIComponent(urlParams.get('playlistId').replace(/\+/g, ' ')) : null;
-    
-    allPlaylists = await callApi("action=getPlaylists");
-    allPlaylists = allPlaylists.filter(p => p.public);
-    
+    const initialPlaylistId = urlParams.get('playlistId')
+        ? decodeURIComponent(urlParams.get('playlistId').replace(/\+/g, ' '))
+        : null;
+
+    allPlaylists = (await callApi("action=getPlaylists")).filter(p => p.public);
+
     const seasons = [...new Set(allPlaylists.map(p => p.season))].sort().reverse();
-    const div = document.getElementById('seasons_grid');
-    div.innerHTML = seasons.map(s => `<div class="season-item" onclick="showPlaylistsBySeason('${s}')">${s}</div>`).join('');
+    const grid = document.getElementById('seasons_grid');
+
+    grid.innerHTML = seasons.map(s =>
+        `<div class="season-item" onclick="showPlaylistsBySeason('${s}')">${s}</div>`
+    ).join('');
 
     if (initialPlaylistId) {
-        const sharedPlaylist = allPlaylists.find(p => String(p.id).trim() === initialPlaylistId.trim());
-        if (sharedPlaylist) {
-            showPlaylistsBySeason(sharedPlaylist.season);
-            loadEpisodes(sharedPlaylist.id);
-        } else {
-            showPlaylistsBySeason(seasons[0]);
+        const shared = allPlaylists.find(p => String(p.id).trim() === initialPlaylistId.trim());
+        if (shared) {
+            showPlaylistsBySeason(shared.season);
+            loadEpisodes(shared.id);
+            return;
         }
-    } else {
-        showPlaylistsBySeason(seasons[0]);
     }
+
+    showPlaylistsBySeason(seasons[0]);
 }
 
 function showPlaylistsBySeason(season) {
     document.querySelectorAll('.season-item').forEach(btn => {
-        btn.style.borderColor = btn.innerText === season ? "var(--primary)" : "rgba(243, 195, 0, 0.2)";
-        btn.style.background = btn.innerText === season ? "rgba(243, 195, 0, 0.15)" : "rgba(255, 255, 255, 0.03)";
+        const active = btn.innerText === season;
+        btn.style.borderColor = active ? "var(--primary)" : "rgba(243,195,0,0.2)";
+        btn.style.background = active ? "rgba(243,195,0,0.15)" : "rgba(255,255,255,0.03)";
     });
-    
-    const filtered = allPlaylists.filter(p => p.season === season);
+
+    const list = allPlaylists.filter(p => p.season === season);
     const div = document.getElementById('episodes_list');
-    div.innerHTML = `<h2>Playlists — ${season}</h2>` + filtered.map(p => {
-        const encodedId = btoa(unescape(encodeURIComponent(p.id)));
+
+    div.innerHTML = `<h2>Playlists — ${season}</h2>` + list.map(p => {
+        const encoded = btoa(unescape(encodeURIComponent(p.id)));
         return `
-        <div class="episode-item" onclick="loadEpisodes('${encodedId}', true)">
+        <div class="episode-item" onclick="loadEpisodes('${encoded}', true)">
             <span class="episode-title"><strong>${p.name}</strong></span>
-            <button class="btn-share" onclick="sharePlaylist(event, '${encodedId}')">🔗</button>
+            <button class="btn-share" onclick="sharePlaylist(event, '${encoded}')">🔗</button>
         </div>`;
     }).join('');
 }
 
-function sharePlaylist(event, encodedPid) {
-    event.stopPropagation();
+// --- PARTAGE ---
+function sharePlaylist(e, encodedPid) {
+    e.stopPropagation();
     const pid = decodeURIComponent(escape(atob(encodedPid)));
-    const url = new URL(window.location.origin + window.location.pathname);
+    const url = new URL(location.origin + location.pathname);
     url.searchParams.set('playlistId', pid);
     navigator.clipboard.writeText(url.toString()).then(showToast);
 }
-    
+
 function showToast() {
     const toast = document.getElementById("toast");
     toast.className = "show";
-    setTimeout(() => { toast.className = ""; }, 3000);
+    setTimeout(() => toast.className = "", 3000);
 }
-    
-async function loadEpisodes(pid, isEncoded = false) {
-    const cleanId = isEncoded ? decodeURIComponent(escape(atob(pid))) : pid;
-    const listDiv = document.getElementById('episodes_list');
-    listDiv.innerHTML = '<div class="loader">Plongée...</div>';
+
+// --- ÉPISODES ---
+async function loadEpisodes(pid, encoded = false) {
+    const cleanId = encoded ? decodeURIComponent(escape(atob(pid))) : pid;
+    const div = document.getElementById('episodes_list');
+
+    div.innerHTML = '<div class="loader">Plongée...</div>';
     episodes = await callApi(`action=getEpisodes&playlistId=${encodeURIComponent(cleanId)}`);
-    
-    if (!episodes || episodes.length === 0) {
-        listDiv.innerHTML = '<p>Aucun épisode trouvé.</p>';
+
+    if (!episodes || !episodes.length) {
+        div.innerHTML = '<p>Aucun épisode trouvé.</p>';
         return;
     }
 
-    listDiv.innerHTML = `<h3>Épisodes</h3>` + episodes.map((e, i) => `
+    div.innerHTML = `<h3>Épisodes</h3>` + episodes.map((e, i) => `
         <div class="episode-item list-item-ep" id="ep-${i}" onclick="play(${i})">
             <span class="episode-title">${e.title}</span>
-            <span style="color:var(--primary); font-size: 0.8em;">▶</span>
-        </div>`).join('');
+            <span style="color:var(--primary); font-size:0.8em;">▶</span>
+        </div>
+    `).join('');
+
     play(0);
 }
 
+// --- LECTURE OPTIMISÉE ---
 async function play(i) {
     current = i;
+
     document.querySelectorAll('.list-item-ep').forEach(el => el.classList.remove('current'));
-    const activeItem = document.getElementById(`ep-${i}`);
-    if (activeItem) activeItem.classList.add('current');
-    
+    document.getElementById(`ep-${i}`)?.classList.add('current');
+
     titleDisplay.innerText = "Plongée en cours...";
 
     const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
-    
-    if (audioUrl) {
-        audio.src = audioUrl;
-        audio.load(); // Force le rechargement du flux
-        
-        audio.oncanplay = () => {
-            titleDisplay.innerText = episodes[i].title;
-            
-            // On joue d'abord...
-            audio.play().then(() => {
-                // ...et on attend 200ms avant de déclarer la MediaSession
-                // C'est souvent ce délai qui débloque Firefox Mobile
-                setTimeout(() => {
-                    updateMediaSession(episodes[i].title);
-                    if ('mediaSession' in navigator) {
-                        navigator.mediaSession.playbackState = "playing";
-                    }
-                }, 200);
-            }).catch(e => console.log("Erreur lecture:", e));
-        };
-    }
-}
+    if (!audioUrl) return;
 
-function updateMediaSession(title) {
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: title,
-            artist: "Baleine sous gravillon",
-            album: "Le podcast du Vivant",
-            artwork: [
-                { src: 'https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png', sizes: '270x270', type: 'image/png' },
-                { src: 'https://image.ausha.co/CQMRa8hZ950ZAamQlgLxjsA38VuxGAXyvYCZXFXK_400x400.jpeg', sizes: '400x400', type: 'image/jpeg' }
-            ]
-        });
+    // 🔹 MediaSession AVANT play()
+    updateMediaSession(episodes[i].title);
 
-        // Forcer les handlers à chaque mise à jour
-        const actions = [
-            ['play', () => audio.play()],
-            ['pause', () => audio.pause()],
-            ['previoustrack', current > 0 ? () => play(current - 1) : null],
-            ['nexttrack', current + 1 < episodes.length ? () => play(current + 1) : null],
-            ['seekbackward', (details) => { audio.currentTime -= (details.seekOffset || 10); }],
-            ['seekforward', (details) => { audio.currentTime += (details.seekOffset || 10); }]
-        ];
+    audio.pause();
+    audio.src = audioUrl;
 
-        for (const [action, handler] of actions) {
-            try {
-                navigator.mediaSession.setActionHandler(action, handler);
-            } catch (error) {
-                console.log(`L'action "${action}" n'est pas supportée.`);
-            }
+    audio.play().then(() => {
+        titleDisplay.innerText = episodes[i].title;
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.playbackState = "playing";
         }
-    }
+    }).catch(e => console.log("Erreur lecture:", e));
 }
 
-// Gestionnaires d'événements uniques
+// --- MEDIA SESSION METADATA ---
+function updateMediaSession(title) {
+    if (!('mediaSession' in navigator)) return;
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+        title,
+        artist: "Baleine sous gravillon",
+        album: "Le podcast du Vivant",
+        artwork: [
+            { src: 'https://baleinesousgravillon.com/wp-content/uploads/2022/02/cropped-Baleine_sous_gravillon-1-270x270.png', sizes: '270x270', type: 'image/png' },
+            { src: 'https://image.ausha.co/CQMRa8hZ950ZAamQlgLxjsA38VuxGAXyvYCZXFXK_400x400.jpeg', sizes: '400x400', type: 'image/jpeg' }
+        ]
+    });
+}
+
+// --- ÉVÉNEMENTS AUDIO ---
 audio.addEventListener('play', () => {
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
 });
+
 audio.addEventListener('pause', () => {
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
 });
+
 audio.addEventListener('ended', () => {
-    if (current + 1 < episodes.length) play(current + 1);
+    if (current + 1 < episodes.length) {
+        play(current + 1);
+    }
 });
 
-// Init
+// --- INIT ---
 loadPlaylists();
 
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(err => console.log("Erreur SW", err));
 }
 </script>
+
     <div id="toast">Lien copié !</div>
 </body>
 </html>

@@ -566,26 +566,38 @@ async function loadEpisodes(pid, encoded = false) {
 async function play(i) {
     current = i;
 
+    // 1. UI Update immédiate
     document.querySelectorAll('.list-item-ep').forEach(el => el.classList.remove('current'));
     document.getElementById(`ep-${i}`)?.classList.add('current');
-
     titleDisplay.innerText = "Plongée en cours...";
 
-    const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
-    if (!audioUrl) return;
+    try {
+        // 2. Récupérer l'URL
+        const audioUrl = await callApi(`action=getAudio&guid=${episodes[i].guid}`);
+        if (!audioUrl) return;
 
-    // 🔹 MediaSession AVANT play()
-    updateMediaSession(episodes[i].title);
+        // 3. Charger et préparer la session
+        audio.src = audioUrl;
+        audio.load(); // Force le chargement
+        
+        updateMediaSession(episodes[i].title);
 
-    audio.pause();
-    audio.src = audioUrl;
-
-    audio.play().then(() => {
-        titleDisplay.innerText = episodes[i].title;
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.playbackState = "playing";
+        // 4. Lancer la lecture
+        // On utilise un bloc .play() propre
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                titleDisplay.innerText = episodes[i].title;
+            }).catch(error => {
+                console.log("Lecture bloquée :", error);
+                // Si bloqué, on affiche un bouton "Play" géant ou un message
+                titleDisplay.innerText = "Cliquez sur Play pour continuer";
+            });
         }
-    }).catch(e => console.log("Erreur lecture:", e));
+    } catch (err) {
+        console.error("Erreur API :", err);
+    }
 }
 
 // --- MEDIA SESSION METADATA ---
@@ -603,6 +615,18 @@ function updateMediaSession(title) {
     });
 }
 
+// --- GESTION DU WAKE LOCK (Empêcher la mise en veille profonde) ---
+let wakeLock = null;
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+        }
+    } catch (err) {
+        console.log("WakeLock non supporté ou refusé");
+    }
+}
+    
 // --- ÉVÉNEMENTS AUDIO ---
 audio.addEventListener('play', () => {
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
@@ -612,12 +636,22 @@ audio.addEventListener('pause', () => {
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
 });
 
-audio.addEventListener('ended', () => {
+// --- MODIFICATION DE L'ÉVÉNEMENT ENDED ---
+audio.addEventListener('ended', async () => {
     if (current + 1 < episodes.length) {
-        play(current + 1);
+        // Petit délai pour laisser le système respirer
+        setTimeout(() => {
+            play(current + 1);
+        }, 500);
     }
 });
 
+// Relancer le WakeLock quand on reprend la lecture
+audio.addEventListener('play', () => {
+    requestWakeLock();
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
+});
+    
 // --- INIT ---
 loadPlaylists();
 

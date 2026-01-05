@@ -228,14 +228,22 @@ h2,h3{
 .season-item:hover::after {
   left: 120%;
 }
+        
+/* État Active (Clic) */
+.season-item.active, 
+.season-item[style*="border-color: var(--primary)"] { 
+    background: var(--primary);
+    box-shadow: 0 15px 30px rgba(243, 195, 0, 0.4);
+    color: #0b0e14;
+    animation: none !important; /* Stoppe le flottement immédiatement */
+    transform: none !important;  /* Annule toute transformation (scale, rotate) */
+    cursor: default;             /* Indique que cliquer à nouveau n'est pas nécessaire */
+}
 
-.season-item:active {
-  transform: scale(0.95);
-  background: var(--primary);
-  box-shadow: 0 15px 30px rgba(243, 195, 0, 0.4);
-  color: #0b0e14;
-  animation: none !important; /* Stoppe le flottement immédiatement */
-  transform: none !important;  /* Annule toute transformation (scale, rotate) */
+.season-item.active:hover,
+.season-item[style*="border-color: var(--primary)"]:hover {
+    transform: none !important;  /* Empêche le bouton de bouger même au survol */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3); /* Garde l'ombre initiale */
 }
 
 /* ===================== */
